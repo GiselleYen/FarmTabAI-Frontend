@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'signin_screen.dart';
 import 'package:farmtab_ai_frontend/widget/custom_welcome_scaffold.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:farmtab_ai_frontend/theme/theme.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -25,7 +26,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
           ),
           Expanded(
-            flex: 7,
+            flex: 8,
             child: Container(
               padding: const EdgeInsets.fromLTRB(25.0, 50.0, 25.0, 20.0),
               decoration: const BoxDecoration(
@@ -44,15 +45,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     children: [
                       // get started text
                       Text(
-                        'Get Started',
+                        "Let's Started!",
                         style: TextStyle(
                           fontSize: 30.0,
                           fontWeight: FontWeight.w900,
-                          //color: lightColorScheme.primary,
+                          color: lightColorScheme.primary,
                         ),
                       ),
                       const SizedBox(
-                        height: 40.0,
+                        height: 30.0,
                       ),
                       // full name
                       TextFormField(
@@ -63,20 +64,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           return null;
                         },
                         decoration: InputDecoration(
-                          label: const Text('Full Name'),
+                          label: Text(
+                              'Full Name',
+                              style: TextStyle(
+                                color: lightColorScheme.primary.withOpacity(0.7),
+                              ),
+                          ),
                           hintText: 'Enter Full Name',
-                          hintStyle: const TextStyle(
-                            color: Colors.black26,
+                          hintStyle: TextStyle(
+                            color: lightColorScheme.primary.withOpacity(0.3),
                           ),
                           border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: lightColorScheme.primary.withOpacity(0.3), // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: lightColorScheme.primary.withOpacity(0.3), // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -94,20 +100,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           return null;
                         },
                         decoration: InputDecoration(
-                          label: const Text('Email'),
+                          label: Text(
+                              'Email',
+                              style: TextStyle(
+                                color: lightColorScheme.primary.withOpacity(0.7),
+                              ),
+                          ),
                           hintText: 'Enter Email',
-                          hintStyle: const TextStyle(
-                            color: Colors.black26,
+                          hintStyle: TextStyle(
+                            color: lightColorScheme.primary.withOpacity(0.3),
                           ),
                           border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: lightColorScheme.primary.withOpacity(0.3), // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: lightColorScheme.primary.withOpacity(0.3), // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -127,20 +138,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           return null;
                         },
                         decoration: InputDecoration(
-                          label: const Text('Password'),
+                          label: Text(
+                              'Password',
+                            style: TextStyle(
+                              color: lightColorScheme.primary.withOpacity(0.7),
+                            ),
+                          ),
                           hintText: 'Enter Password',
-                          hintStyle: const TextStyle(
-                            color: Colors.black26,
+                          hintStyle: TextStyle(
+                            color: lightColorScheme.primary.withOpacity(0.3),
                           ),
                           border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: lightColorScheme.primary.withOpacity(0.3), // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: lightColorScheme.primary.withOpacity(0.3), // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -159,19 +175,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 agreePersonalData = value!;
                               });
                             },
-                            //activeColor: lightColorScheme.primary,
+                            activeColor: lightColorScheme.primary,
                           ),
-                          const Text(
+                          Text(
                             'I agree to the processing of ',
                             style: TextStyle(
-                              color: Colors.black45,
+                              color: lightColorScheme.primary.withOpacity(0.6),
                             ),
                           ),
                           Text(
                             'Personal data',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              //color: lightColorScheme.primary,
+                              color: lightColorScheme.primary,
                             ),
                           ),
                         ],
@@ -199,7 +215,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               );
                             }
                           },
-                          child: const Text('Sign up'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: lightColorScheme.primary,
+                            minimumSize: Size(double.infinity, 50),
+                          ),
+                          child: const Text(
+                              'Sign up',
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(
@@ -215,7 +240,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               color: Colors.grey.withOpacity(0.5),
                             ),
                           ),
-                          const Padding(
+                          Padding(
                             padding: EdgeInsets.symmetric(
                               vertical: 0,
                               horizontal: 10,
@@ -223,7 +248,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             child: Text(
                               'Sign up with',
                               style: TextStyle(
-                                color: Colors.black45,
+                                color: lightColorScheme.primary.withOpacity(0.6),
                               ),
                             ),
                           ),
@@ -243,9 +268,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Logo(Logos.facebook_f),
-                          Logo(Logos.twitter),
+                          // Logo(Logos.twitter),
                           Logo(Logos.google),
-                          Logo(Logos.apple),
+                          // Logo(Logos.apple),
                         ],
                       ),
                       const SizedBox(
@@ -255,10 +280,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
+                          Text(
                             'Already have an account? ',
                             style: TextStyle(
-                              color: Colors.black45,
+                              color: lightColorScheme.primary.withOpacity(0.6),
                             ),
                           ),
                           GestureDetector(
@@ -271,10 +296,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               );
                             },
                             child: Text(
-                              'Sign in',
+                              'Log in',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                //color: lightColorScheme.primary,
+                                color: lightColorScheme.primary,
                               ),
                             ),
                           ),

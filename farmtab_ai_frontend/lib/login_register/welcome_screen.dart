@@ -48,8 +48,8 @@ class WelcomeScreen extends StatelessWidget {
                               fontFamily: 'Poppins',
                               shadows: [
                                 Shadow(
-                                  offset: Offset(1.5, 1.5), // Adjust the shadow offset
-                                  blurRadius: 2.0,           // Adjust the blur radius
+                                  offset: Offset(1.5, 2.0), // Adjust the shadow offset
+                                  blurRadius: 3.0,           // Adjust the blur radius
                                   color: Color(0xFF5D8C3F).withOpacity(0.5), // Shadow color
                                 ),
                               ],
@@ -67,9 +67,9 @@ class WelcomeScreen extends StatelessWidget {
                 children: [
                   Expanded(
                     child: WelcomeButton(
-                      buttonText: 'Sign in',
+                      buttonText: 'Log in',
                       onTap: SignInScreen(),
-                      color: lightColorScheme.primary,  // Updated color
+                      color: lightColorScheme.primary,
                       textColor: Colors.white,
                     ),
                   ),

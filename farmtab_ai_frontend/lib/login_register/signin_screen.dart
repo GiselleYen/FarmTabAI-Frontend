@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:farmtab_ai_frontend/widget/custom_welcome_scaffold.dart';
+import 'package:farmtab_ai_frontend/theme/theme.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'signup_screen.dart';
 
@@ -25,10 +26,10 @@ class _SignInScreenState extends State<SignInScreen> {
             ),
           ),
           Expanded(
-            flex: 7,
+            flex: 4,
             child: Container(
               padding: const EdgeInsets.fromLTRB(25.0, 50.0, 25.0, 20.0),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(40.0),
@@ -42,11 +43,11 @@ class _SignInScreenState extends State<SignInScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        'Welcome back',
+                        'Welcome Back',
                         style: TextStyle(
                           fontSize: 30.0,
                           fontWeight: FontWeight.w900,
-                          //color: lightColorScheme.primary,
+                          color: lightColorScheme.primary,
                         ),
                       ),
                       const SizedBox(
@@ -60,20 +61,25 @@ class _SignInScreenState extends State<SignInScreen> {
                           return null;
                         },
                         decoration: InputDecoration(
-                          label: const Text('Email'),
+                          label: Text(
+                              'Email',
+                              style: TextStyle(
+                                color: lightColorScheme.primary.withOpacity(0.7),
+                            ),
+                          ),
                           hintText: 'Enter Email',
-                          hintStyle: const TextStyle(
-                            color: Colors.black26,
+                          hintStyle: TextStyle(
+                            color: lightColorScheme.primary.withOpacity(0.3),
                           ),
                           border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: lightColorScheme.primary, // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: lightColorScheme.primary.withOpacity(0.3), // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -92,20 +98,25 @@ class _SignInScreenState extends State<SignInScreen> {
                           return null;
                         },
                         decoration: InputDecoration(
-                          label: const Text('Password'),
+                          label: Text(
+                              'Password',
+                              style: TextStyle(
+                                color: lightColorScheme.primary.withOpacity(0.7),
+                              ),
+                          ),
                           hintText: 'Enter Password',
                           hintStyle: const TextStyle(
                             color: Colors.black26,
                           ),
                           border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: lightColorScheme.primary.withOpacity(0.3), // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.black12, // Default border color
+                            borderSide: BorderSide(
+                              color: lightColorScheme.primary.withOpacity(0.3), // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -126,7 +137,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                     rememberPassword = value!;
                                   });
                                 },
-                                //activeColor: lightColorScheme.primary,
+                                activeColor: lightColorScheme.primary,
                               ),
                               const Text(
                                 'Remember me',
@@ -141,7 +152,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               'Forget password?',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                //color: lightColorScheme.primary,
+                                color: lightColorScheme.primary,
                               ),
                             ),
                           ),
@@ -169,7 +180,16 @@ class _SignInScreenState extends State<SignInScreen> {
                               );
                             }
                           },
-                          child: const Text('Sign up'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: lightColorScheme.primary,
+                            minimumSize: Size(double.infinity, 50),
+                          ),
+                          child: const Text(
+                              'Log in',
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(
@@ -184,15 +204,15 @@ class _SignInScreenState extends State<SignInScreen> {
                               color: Colors.grey.withOpacity(0.5),
                             ),
                           ),
-                          const Padding(
+                          Padding(
                             padding: EdgeInsets.symmetric(
                               vertical: 0,
                               horizontal: 10,
                             ),
                             child: Text(
-                              'Sign up with',
+                              'Log in with',
                               style: TextStyle(
-                                color: Colors.black45,
+                                color: lightColorScheme.primary.withOpacity(0.6),
                               ),
                             ),
                           ),
@@ -211,9 +231,9 @@ class _SignInScreenState extends State<SignInScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Logo(Logos.facebook_f),
-                          Logo(Logos.twitter),
+                          // Logo(Logos.twitter),
                           Logo(Logos.google),
-                          Logo(Logos.apple),
+                          // Logo(Logos.apple),
                         ],
                       ),
                       const SizedBox(
@@ -223,10 +243,10 @@ class _SignInScreenState extends State<SignInScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
+                          Text(
                             'Don\'t have an account? ',
                             style: TextStyle(
-                              color: Colors.black45,
+                              color: lightColorScheme.primary.withOpacity(0.6),
                             ),
                           ),
                           GestureDetector(
@@ -242,7 +262,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               'Sign up',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                //color: lightColorScheme.primary,
+                                color: lightColorScheme.primary,
                               ),
                             ),
                           ),
