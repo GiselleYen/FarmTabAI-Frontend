@@ -1,3 +1,4 @@
+import 'package:farmtab_ai_frontend/homepage/home_page.dart';
 import 'package:flutter/material.dart';
 import 'login_register/onboarding_screen.dart';
 
@@ -10,7 +11,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'FarmTab AI',
-      home: OnboardingScreen(),
+      home: HomePage(),
       debugShowCheckedModeBanner: false,
     );
   }

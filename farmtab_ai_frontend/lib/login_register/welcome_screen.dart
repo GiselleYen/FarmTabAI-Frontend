@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:farmtab_ai_frontend/widget/custom_welcome_scaffold.dart';
 import 'package:farmtab_ai_frontend/widget/welcome_button.dart';
-import 'package:farmtab_ai_frontend/theme/theme.dart';
+import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 import 'signin_screen.dart';
 import 'signup_screen.dart';
 
@@ -69,7 +69,7 @@ class WelcomeScreen extends StatelessWidget {
                     child: WelcomeButton(
                       buttonText: 'Log in',
                       onTap: SignInScreen(),
-                      color: lightColorScheme.primary,
+                      color: TColor.primaryColor1,
                       textColor: Colors.white,
                     ),
                   ),
@@ -78,7 +78,7 @@ class WelcomeScreen extends StatelessWidget {
                       buttonText: 'Sign up',
                       onTap: const SignUpScreen(),
                       color: Colors.transparent,
-                       textColor: lightColorScheme.primary,
+                       textColor: TColor.primaryColor1,
                     ),
                   ),
                 ],

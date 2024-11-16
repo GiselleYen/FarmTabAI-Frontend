@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:farmtab_ai_frontend/widget/custom_welcome_scaffold.dart';
-import 'package:farmtab_ai_frontend/theme/theme.dart';
+import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:farmtab_ai_frontend/homepage/home_page.dart';
 import 'signup_screen.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -47,7 +48,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         style: TextStyle(
                           fontSize: 30.0,
                           fontWeight: FontWeight.w900,
-                          color: lightColorScheme.primary,
+                          color: TColor.primaryColor1,
                         ),
                       ),
                       const SizedBox(
@@ -64,22 +65,22 @@ class _SignInScreenState extends State<SignInScreen> {
                           label: Text(
                               'Email',
                               style: TextStyle(
-                                color: lightColorScheme.primary.withOpacity(0.7),
+                                color: TColor.primaryColor1.withOpacity(0.7),
                             ),
                           ),
                           hintText: 'Enter Email',
                           hintStyle: TextStyle(
-                            color: lightColorScheme.primary.withOpacity(0.3),
+                            color: TColor.primaryColor1.withOpacity(0.3),
                           ),
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: lightColorScheme.primary, // Default border color
+                              color: TColor.primaryColor1, // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: lightColorScheme.primary.withOpacity(0.3), // Default border color
+                              color: TColor.primaryColor1.withOpacity(0.3), // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -101,7 +102,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           label: Text(
                               'Password',
                               style: TextStyle(
-                                color: lightColorScheme.primary.withOpacity(0.7),
+                                color: TColor.primaryColor1.withOpacity(0.7),
                               ),
                           ),
                           hintText: 'Enter Password',
@@ -110,13 +111,13 @@ class _SignInScreenState extends State<SignInScreen> {
                           ),
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: lightColorScheme.primary.withOpacity(0.3), // Default border color
+                              color: TColor.primaryColor1.withOpacity(0.3), // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: lightColorScheme.primary.withOpacity(0.3), // Default border color
+                              color: TColor.primaryColor1.withOpacity(0.3), // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -137,7 +138,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                     rememberPassword = value!;
                                   });
                                 },
-                                activeColor: lightColorScheme.primary,
+                                activeColor: TColor.primaryColor1,
                               ),
                               const Text(
                                 'Remember me',
@@ -152,7 +153,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               'Forget password?',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: lightColorScheme.primary,
+                                color: TColor.primaryColor1,
                               ),
                             ),
                           ),
@@ -165,29 +166,33 @@ class _SignInScreenState extends State<SignInScreen> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            if (_formSignInKey.currentState!.validate() &&
-                                rememberPassword) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Processing Data'),
-                                ),
+                            if (_formSignInKey.currentState!.validate() && rememberPassword) {
+                              // ScaffoldMessenger.of(context).showSnackBar(
+                              //   const SnackBar(
+                              //     content: Text('Processing Data'),
+                              //   ),
+                              // );
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => HomePage()),
                               );
                             } else if (!rememberPassword) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content: Text(
-                                        'Please agree to the processing of personal data')),
+                                  content: Text('Please agree to the processing of personal data'),
+                                ),
                               );
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: lightColorScheme.primary,
-                            minimumSize: Size(double.infinity, 50),
+                            backgroundColor: TColor.primaryColor1,
+                            minimumSize: const Size(double.infinity, 50),
                           ),
                           child: const Text(
-                              'Log in',
+                            'Log in',
                             style: TextStyle(
                               fontSize: 16,
+                              color: Colors.white,
                             ),
                           ),
                         ),
@@ -212,7 +217,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             child: Text(
                               'Log in with',
                               style: TextStyle(
-                                color: lightColorScheme.primary.withOpacity(0.6),
+                                color: TColor.primaryColor1.withOpacity(0.6),
                               ),
                             ),
                           ),
@@ -246,7 +251,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           Text(
                             'Don\'t have an account? ',
                             style: TextStyle(
-                              color: lightColorScheme.primary.withOpacity(0.6),
+                              color: TColor.primaryColor1.withOpacity(0.6),
                             ),
                           ),
                           GestureDetector(
@@ -262,7 +267,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               'Sign up',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: lightColorScheme.primary,
+                                color: TColor.primaryColor1,
                               ),
                             ),
                           ),

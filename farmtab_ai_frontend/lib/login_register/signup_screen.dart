@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'signin_screen.dart';
 import 'package:farmtab_ai_frontend/widget/custom_welcome_scaffold.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:farmtab_ai_frontend/theme/theme.dart';
+import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -49,7 +49,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         style: TextStyle(
                           fontSize: 30.0,
                           fontWeight: FontWeight.w900,
-                          color: lightColorScheme.primary,
+                          color: TColor.primaryColor1,
                         ),
                       ),
                       const SizedBox(
@@ -67,22 +67,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           label: Text(
                               'Full Name',
                               style: TextStyle(
-                                color: lightColorScheme.primary.withOpacity(0.7),
+                                color: TColor.primaryColor1.withOpacity(0.7),
                               ),
                           ),
                           hintText: 'Enter Full Name',
                           hintStyle: TextStyle(
-                            color: lightColorScheme.primary.withOpacity(0.3),
+                            color: TColor.primaryColor1.withOpacity(0.3),
                           ),
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: lightColorScheme.primary.withOpacity(0.3), // Default border color
+                              color: TColor.primaryColor1.withOpacity(0.3), // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: lightColorScheme.primary.withOpacity(0.3), // Default border color
+                              color: TColor.primaryColor1.withOpacity(0.3), // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -103,22 +103,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           label: Text(
                               'Email',
                               style: TextStyle(
-                                color: lightColorScheme.primary.withOpacity(0.7),
+                                color: TColor.primaryColor1.withOpacity(0.7),
                               ),
                           ),
                           hintText: 'Enter Email',
                           hintStyle: TextStyle(
-                            color: lightColorScheme.primary.withOpacity(0.3),
+                            color: TColor.primaryColor1.withOpacity(0.3),
                           ),
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: lightColorScheme.primary.withOpacity(0.3), // Default border color
+                              color: TColor.primaryColor1.withOpacity(0.3), // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: lightColorScheme.primary.withOpacity(0.3), // Default border color
+                              color: TColor.primaryColor1.withOpacity(0.3), // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -141,22 +141,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           label: Text(
                               'Password',
                             style: TextStyle(
-                              color: lightColorScheme.primary.withOpacity(0.7),
+                              color: TColor.primaryColor1.withOpacity(0.7),
                             ),
                           ),
                           hintText: 'Enter Password',
                           hintStyle: TextStyle(
-                            color: lightColorScheme.primary.withOpacity(0.3),
+                            color: TColor.primaryColor1.withOpacity(0.3),
                           ),
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: lightColorScheme.primary.withOpacity(0.3), // Default border color
+                              color: TColor.primaryColor1.withOpacity(0.3), // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: lightColorScheme.primary.withOpacity(0.3), // Default border color
+                              color: TColor.primaryColor1.withOpacity(0.3), // Default border color
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -175,19 +175,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 agreePersonalData = value!;
                               });
                             },
-                            activeColor: lightColorScheme.primary,
+                            activeColor: TColor.primaryColor1,
                           ),
                           Text(
                             'I agree to the processing of ',
                             style: TextStyle(
-                              color: lightColorScheme.primary.withOpacity(0.6),
+                              color: TColor.primaryColor1.withOpacity(0.6),
                             ),
                           ),
                           Text(
                             'Personal data',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: lightColorScheme.primary,
+                              color: TColor.primaryColor1,
                             ),
                           ),
                         ],
@@ -216,13 +216,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: lightColorScheme.primary,
+                            backgroundColor: TColor.primaryColor1,
                             minimumSize: Size(double.infinity, 50),
                           ),
                           child: const Text(
                               'Sign up',
                             style: TextStyle(
                               fontSize: 16,
+                              color: Colors.white,
                             ),
                           ),
                         ),
@@ -248,7 +249,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             child: Text(
                               'Sign up with',
                               style: TextStyle(
-                                color: lightColorScheme.primary.withOpacity(0.6),
+                                color: TColor.primaryColor1.withOpacity(0.6),
                               ),
                             ),
                           ),
@@ -283,7 +284,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           Text(
                             'Already have an account? ',
                             style: TextStyle(
-                              color: lightColorScheme.primary.withOpacity(0.6),
+                              color: TColor.primaryColor1.withOpacity(0.6),
                             ),
                           ),
                           GestureDetector(
@@ -299,7 +300,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               'Log in',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: lightColorScheme.primary,
+                                color: TColor.primaryColor1,
                               ),
                             ),
                           ),
