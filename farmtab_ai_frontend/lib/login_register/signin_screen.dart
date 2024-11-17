@@ -1,3 +1,4 @@
+import 'package:farmtab_ai_frontend/nav%20tab/home_tab_view.dart';
 import 'package:flutter/material.dart';
 import 'package:farmtab_ai_frontend/widget/custom_welcome_scaffold.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
@@ -174,7 +175,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               // );
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => HomePage()),
+                                MaterialPageRoute(builder: (context) => HomeTabView()),
                               );
                             } else if (!rememberPassword) {
                               ScaffoldMessenger.of(context).showSnackBar(
