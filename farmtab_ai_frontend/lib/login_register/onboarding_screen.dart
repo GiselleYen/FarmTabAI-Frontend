@@ -13,7 +13,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.initState();
 
     // Start a timer to navigate to the login screen after 3 seconds
-    Timer(Duration(seconds: 6), () {
+    Timer(Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => WelcomeScreen()),
@@ -41,11 +41,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     height: 300,
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
                 Text(
                       'FarmTab AI',
                       style: TextStyle(
-                        fontSize: 30,
+                        fontSize: 24,
                         color: Color(0xFF5D8C3F),
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Aclonica',

@@ -22,7 +22,7 @@ class CustomWelcomeScaffold extends StatelessWidget {
           ),
           // Dark overlay
           Container(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withOpacity(0.20),
           ),
           SafeArea(
             child: child!,

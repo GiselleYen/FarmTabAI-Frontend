@@ -14,7 +14,7 @@ class WelcomeScreen extends StatelessWidget {
       child: Column(
         children: [
           Flexible(
-              flex: 8,
+              flex: 7,
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   vertical: 0,
@@ -26,15 +26,15 @@ class WelcomeScreen extends StatelessWidget {
                     text:  TextSpan(
                       children: [
                         TextSpan(
-                            text: 'Welcome Home!\n',
+                            text: 'Welcome FarmTab AI\n',
                             style: TextStyle(
                               fontSize: 44.0,
                               fontWeight: FontWeight.w600,
                               shadows: [
                                 Shadow(
-                                  offset: Offset(2.0, 2.0), // Adjust the shadow offset
+                                  offset: Offset(1.5, 1.5), // Adjust the shadow offset
                                   blurRadius: 3.0,           // Adjust the blur radius
-                                  color: Color(0xFF5D8C3F).withOpacity(0.5), // Shadow color
+                                  color: TColor.primaryColor1.withOpacity(0.5), // Shadow color
                                 ),
                               ],
                             )
@@ -50,7 +50,7 @@ class WelcomeScreen extends StatelessWidget {
                                 Shadow(
                                   offset: Offset(1.5, 2.0), // Adjust the shadow offset
                                   blurRadius: 3.0,           // Adjust the blur radius
-                                  color: Color(0xFF5D8C3F).withOpacity(0.5), // Shadow color
+                                  color: TColor.primaryColor1.withOpacity(0.5), // Shadow color
                                 ),
                               ],
                             ))

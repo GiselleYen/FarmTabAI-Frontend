@@ -1,4 +1,5 @@
 import 'package:dotted_dashed_line/dotted_dashed_line.dart';
+import 'package:farmtab_ai_frontend/login_register/welcome_screen.dart';
 import 'package:farmtab_ai_frontend/widget/round_button.dart';
 import 'package:farmtab_ai_frontend/widget/workout_row.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -75,13 +76,6 @@ class _HomePageState extends State<HomePage> {
     FlSpot(29, 60),
     FlSpot(30, 40)
   ];
-  List waterArr = [
-    {"title": "6am - 8am", "subtitle": "600ml"},
-    {"title": "9am - 11am", "subtitle": "500ml"},
-    {"title": "11am - 2pm", "subtitle": "1000ml"},
-    {"title": "2pm - 4pm", "subtitle": "700ml"},
-    {"title": "4pm - now", "subtitle": "900ml"},
-  ];
 
   int touchedIndex = -1;
 
@@ -112,6 +106,18 @@ class _HomePageState extends State<HomePage> {
     final tooltipsOnBar = lineBarsData[0];
 
     return Scaffold(
+      // appBar: AppBar(
+      //   backgroundColor: Colors.white,
+      //   centerTitle: true,
+      //   elevation: 0,
+      //   leadingWidth: 0,
+      //   toolbarHeight: 45,
+      //   title: Text(
+      //     "FarmTab AI",
+      //     style: TextStyle(
+      //         color: TColor.primaryColor1, fontSize: 20, fontWeight: FontWeight.w700),
+      //   ),
+      // ),
       backgroundColor: TColor.white,
       body: SingleChildScrollView(
         child: SafeArea(
@@ -132,7 +138,7 @@ class _HomePageState extends State<HomePage> {
                           style: TextStyle(
                             color: TColor.primaryColor1,
                             fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         Text(
@@ -140,7 +146,7 @@ class _HomePageState extends State<HomePage> {
                           style: TextStyle(
                             color: TColor.primaryColor1,
                             fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
@@ -158,8 +164,8 @@ class _HomePageState extends State<HomePage> {
                             },
                             icon: Image.asset(
                               "assets/images/notification_active.png",
-                              width: 25,
-                              height: 25,
+                              width: 24,
+                              height: 24,
                               fit: BoxFit.fitHeight,
                             )
                         ),
@@ -169,20 +175,79 @@ class _HomePageState extends State<HomePage> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2), // Shadow color
-                                spreadRadius: 1, // How much the shadow spreads
-                                blurRadius: 3, // How blurry the shadow is
-                                offset: Offset(2, 2), // Shadow position
+                                color: Colors.black.withOpacity(0.2),
+                                spreadRadius: 1,
+                                blurRadius: 3,
+                                offset: Offset(2, 2),
                               ),
                             ],
                           ),
-                          child: const CircleAvatar(
-                            radius: 26, // Adjust size
-                            backgroundImage: AssetImage(
-                              "assets/images/profile_photo.jpg", // Replace with your asset path
-                            ),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // CircleAvatar with profile image
+                              const CircleAvatar(
+                                radius: 22, // Adjust size
+                                backgroundImage: AssetImage("assets/images/profile_photo.jpg"), // Replace with your asset path
+                              ),
+                              // Dropdown button positioned on top of the avatar
+                              Positioned(
+                                top: 10,
+                                right: 20,
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    items: [
+                                      DropdownMenuItem<String>(
+                                        value: "Profile",
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.account_circle, color: TColor.primaryColor1), // Profile icon
+                                            SizedBox(width: 8),
+                                            Text(
+                                              "Profile Info",
+                                              style: TextStyle(color: TColor.primaryColor1, fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      DropdownMenuItem<String>(
+                                        value: "Logout",
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.exit_to_app, color: TColor.primaryColor1), // Logout icon
+                                            SizedBox(width: 8),
+                                            Text(
+                                              "Log Out",
+                                              style: TextStyle(color: TColor.primaryColor1, fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                    onChanged: (value) {
+                                    if (value == "Profile") {
+                                      // Navigate to Profile page
+                                      // Navigator.push(
+                                      //   context,
+                                      //   MaterialPageRoute(builder: (context) => ProfilePage()),
+                                      // );
+                                    } else if (value == "Logout") {
+                                      // Handle log out action here
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => WelcomeScreen(),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                    dropdownColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
+                        )
+
                       ],
                     ),
                   ],
@@ -217,14 +282,14 @@ class _HomePageState extends State<HomePage> {
                                 "Today Plant Condition",
                                 style: TextStyle(
                                     color: TColor.white,
-                                    fontSize: 18,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.w700),
                               ),
                               Text(
                                 "Your plant overall is good!",
                                 style: TextStyle(
                                     color: TColor.white.withOpacity(0.8),
-                                    fontSize: 14),
+                                    fontSize: 12),
                               ),
                               SizedBox(
                                 height: media.width * 0.05,
@@ -277,28 +342,29 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "You have already checked in 70 days !",
+                        // track the harvest time
+                        "Your plants already growed 30 days !",
                         style: TextStyle(
                             color: TColor.black,
-                            fontSize: 14,
+                            fontSize: 12,
                             fontWeight: FontWeight.w700),
                       ),
                       SizedBox(
-                        width: 70,
+                        width: 80,
                         height: 25,
                         child: RoundButton(
-                          title: "Check",
+                          title: "Harvest",
                           type: RoundButtonType.bgGradient,
                           fontSize: 12,
                           fontWeight: FontWeight.w400,
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                const ActivityTrackerView(),
-                              ),
-                            );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (context) =>
+                            //     const ActivityTrackerView(),
+                            //   ),
+                            // );
                           },
                         ),
                       )
@@ -624,7 +690,7 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Latest Workout",
+                      "Recently Viewed",
                       style: TextStyle(
                         color: TColor.primaryColor1,
                         fontSize: 18,
@@ -643,25 +709,25 @@ class _HomePageState extends State<HomePage> {
                     )
                   ],
                 ),
-                ListView.builder(
-                    padding: EdgeInsets.zero,
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: lastWorkoutArr.length,
-                    itemBuilder: (context, index) {
-                      var wObj = lastWorkoutArr[index] as Map? ?? {};
-                      return InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                const FinishedWorkoutView(),
-                              ),
-                            );
-                          },
-                          child: WorkoutRow(wObj: wObj));
-                    }),
+                // ListView.builder(
+                //     padding: EdgeInsets.zero,
+                //     physics: const NeverScrollableScrollPhysics(),
+                //     shrinkWrap: true,
+                //     itemCount: lastWorkoutArr.length,
+                //     itemBuilder: (context, index) {
+                //       var wObj = lastWorkoutArr[index] as Map? ?? {};
+                //       return InkWell(
+                //           onTap: () {
+                //             Navigator.push(
+                //               context,
+                //               MaterialPageRoute(
+                //                 builder: (context) =>
+                //                 const FinishedWorkoutView(),
+                //               ),
+                //             );
+                //           },
+                //           child: WorkoutRow(wObj: wObj));
+                //     }),
                 SizedBox(
                   height: media.width * 0.1,
                 ),

@@ -163,34 +163,50 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ),
                       const SizedBox(
-                        height: 25.0,
+                        height: 20.0,
                       ),
                       // i agree to the processing
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: agreePersonalData,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                agreePersonalData = value!;
-                              });
-                            },
-                            activeColor: TColor.primaryColor1,
-                          ),
-                          Text(
-                            'I agree to the processing of ',
-                            style: TextStyle(
-                              color: TColor.primaryColor1.withOpacity(0.6),
+                      Container(
+                        alignment: Alignment.centerLeft, // Aligns the entire content to the left
+                        margin: EdgeInsets.only(right: 8.0), // Adds a left margin for positioning
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min, // Ensures the row fits its content
+                          children: [
+                            Checkbox(
+                              value: agreePersonalData,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  agreePersonalData = value!;
+                                });
+                              },
+                              activeColor: TColor.primaryColor1,
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, // Reduces the tap area size
                             ),
-                          ),
-                          Text(
-                            'Personal data',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: TColor.primaryColor1,
+                            Flexible(
+                              child: RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: 'I agree to the processing of ',
+                                      style: TextStyle(
+                                        fontSize: 14.0,
+                                        color: TColor.primaryColor1.withOpacity(0.6),
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: 'Personal data',
+                                      style: TextStyle(
+                                        fontSize: 14.0,
+                                        fontWeight: FontWeight.bold,
+                                        color: TColor.primaryColor1,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       const SizedBox(
                         height: 25.0,

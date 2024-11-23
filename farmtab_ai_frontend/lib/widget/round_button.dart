@@ -28,7 +28,7 @@ class RoundButton extends StatelessWidget {
           gradient: LinearGradient(
             colors: type == RoundButtonType.bgSGradient ? TColor.secondaryG :  TColor.primaryG,
           ),
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(10),
           boxShadow: type == RoundButtonType.bgGradient ||  type == RoundButtonType.bgSGradient
               ? const [
             BoxShadow(
@@ -39,8 +39,8 @@ class RoundButton extends StatelessWidget {
               : null),
       child: MaterialButton(
         onPressed: onPressed,
-        height: 50,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+        height: 60,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         textColor: TColor.primaryColor1,
         minWidth: double.maxFinite,
         elevation: type == RoundButtonType.bgGradient ||  type == RoundButtonType.bgSGradient ? 0 : elevation,

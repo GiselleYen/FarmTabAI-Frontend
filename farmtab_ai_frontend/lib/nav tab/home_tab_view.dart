@@ -1,10 +1,14 @@
 import 'dart:io';
+import 'package:farmtab_ai_frontend/site/SiteList.dart';
+import 'package:farmtab_ai_frontend/site/site.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 import 'package:farmtab_ai_frontend/widget/tab_button.dart';
 import 'package:farmtab_ai_frontend/homepage/blank_view.dart';
 // import 'package:fitness/view/main_tab/select_view.dart';
 import 'package:flutter/material.dart';
 import 'package:farmtab_ai_frontend/homepage/home_page.dart';
+
+import '../profile/profile_view.dart';
 // import '../photo_progress/photo_progress_view.dart';
 // import '../profile/profile_view.dart';
 // import '../workout_tracker/workout_tracker_view.dart';
@@ -81,7 +85,7 @@ class _HomeTabViewState extends State<HomeTabView> {
                     isActive: selectTab == 1,
                     onTap: () {
                       selectTab = 1;
-                      // currentTab = const SelectView();
+                       currentTab = SiteList();
                       if (mounted) {
                         setState(() {});
                       }
@@ -93,7 +97,7 @@ class _HomeTabViewState extends State<HomeTabView> {
                     isActive: selectTab == 2,
                     onTap: () {
                       selectTab = 2;
-                      // currentTab = const PhotoProgressView();
+                       currentTab = const SitePage();
                       if (mounted) {
                         setState(() {});
                       }
@@ -104,7 +108,7 @@ class _HomeTabViewState extends State<HomeTabView> {
                     isActive: selectTab == 3,
                     onTap: () {
                       selectTab = 3;
-                      // currentTab = const ProfileView();
+                      currentTab = const ProfileView();
                       if (mounted) {
                         setState(() {});//
                       }
