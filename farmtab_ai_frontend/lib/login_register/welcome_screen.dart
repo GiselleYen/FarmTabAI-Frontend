@@ -68,7 +68,7 @@ class WelcomeScreen extends StatelessWidget {
                   Expanded(
                     child: WelcomeButton(
                       buttonText: 'Log in',
-                      onTap: SignInScreen(),
+                      onTap: const SignInScreen(),
                       color: TColor.primaryColor1,
                       textColor: Colors.white,
                     ),
@@ -78,7 +78,7 @@ class WelcomeScreen extends StatelessWidget {
                       buttonText: 'Sign up',
                       onTap: const SignUpScreen(),
                       color: Colors.transparent,
-                       textColor: TColor.primaryColor1,
+                      textColor: TColor.primaryColor1,
                     ),
                   ),
                 ],

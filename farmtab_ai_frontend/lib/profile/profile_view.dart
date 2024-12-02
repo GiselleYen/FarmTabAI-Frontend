@@ -1,3 +1,4 @@
+import 'package:farmtab_ai_frontend/profile/edit_profile.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/color_extension.dart';
@@ -103,12 +104,12 @@ class _ProfileViewState extends State<ProfileView> {
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
                       onPressed: () {
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => const ActivityTrackerView(),
-                        //   ),
-                        // );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditProfilePage(),
+                          ),
+                        );
                       },
                     ),
                   )

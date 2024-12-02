@@ -4,6 +4,7 @@ import 'package:farmtab_ai_frontend/widget/custom_welcome_scaffold.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:farmtab_ai_frontend/homepage/home_page.dart';
+import 'forget_password.dart';
 import 'signup_screen.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -150,6 +151,14 @@ class _SignInScreenState extends State<SignInScreen> {
                             ],
                           ),
                           GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ForgetPassword(),
+                                ),
+                              );
+                            },
                             child: Text(
                               'Forget password?',
                               style: TextStyle(
@@ -267,6 +276,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             child: Text(
                               'Sign up',
                               style: TextStyle(
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: TColor.primaryColor1,
                               ),

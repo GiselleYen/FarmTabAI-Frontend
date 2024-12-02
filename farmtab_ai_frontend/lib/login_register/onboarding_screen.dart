@@ -43,13 +43,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                      'FarmTab AI',
-                      style: TextStyle(
-                        fontSize: 24,
-                        color: Color(0xFF5D8C3F),
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Aclonica',
-                      ),
+                    'FarmTab AI',
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: Color(0xFF5D8C3F),
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Aclonica',
+                    ),
                 ),
               ],
             ),

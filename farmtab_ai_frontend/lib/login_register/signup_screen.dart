@@ -1,3 +1,4 @@
+import 'package:farmtab_ai_frontend/login_register/otp.dart';
 import 'package:flutter/material.dart';
 import 'signin_screen.dart';
 import 'package:farmtab_ai_frontend/widget/custom_welcome_scaffold.dart';
@@ -218,10 +219,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           onPressed: () {
                             if (_formSignupKey.currentState!.validate() &&
                                 agreePersonalData) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Processing Data'),
-                                ),
+                              // ScaffoldMessenger.of(context).showSnackBar(
+                              //   const SnackBar(
+                              //     content: Text('Processing Data'),
+                              //   ),
+                              // );
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => OTP_Page()),
                               );
                             } else if (!agreePersonalData) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -315,6 +320,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             child: Text(
                               'Log in',
                               style: TextStyle(
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: TColor.primaryColor1,
                               ),

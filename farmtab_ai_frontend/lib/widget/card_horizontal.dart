@@ -1,5 +1,4 @@
-import 'package:farmtab_ai_frontend/site/SiteList.dart';
-import 'package:farmtab_ai_frontend/site/site.dart';
+import 'package:farmtab_ai_frontend/shelf/shelf_list.dart';
 import 'package:flutter/material.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 
@@ -29,7 +28,7 @@ class CardHorizontal extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => SitePage(), // Replace with your plant page widget
+              builder: (context) => ShelfList(), // Replace with your plant page widget
             ),
           );
         },
@@ -42,7 +41,7 @@ class CardHorizontal extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(colors: TColor.primaryG),
               borderRadius: BorderRadius.all(
-                Radius.circular(10.0), // Rounded corners
+                Radius.circular(20.0), // Rounded corners
               ),
               boxShadow: [
                 BoxShadow(
@@ -76,7 +75,7 @@ class CardHorizontal extends StatelessWidget {
                       padding: const EdgeInsets.all(10.0), // Add padding around the image
                       child: ClipRRect(
                         borderRadius: BorderRadius.all(
-                          Radius.circular(5.0), // Rounded corners
+                          Radius.circular(50.0), // Rounded corners
                         ),
                         child: Image.asset(
                           this.img,
