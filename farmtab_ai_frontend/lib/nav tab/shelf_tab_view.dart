@@ -1,11 +1,10 @@
-import 'dart:io';
+import 'dart:io' show Platform;
 import 'package:farmtab_ai_frontend/shelf/calibration.dart';
 import 'package:farmtab_ai_frontend/shelf/sensor_data.dart';
-import 'package:farmtab_ai_frontend/site/SiteList.dart';
-import 'package:farmtab_ai_frontend/site/site.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 import 'package:farmtab_ai_frontend/widget_shelf/shelf_tab_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../profile/profile_view.dart';
 import '../shelf/chat.dart';
@@ -28,11 +27,11 @@ class _ShelfTabViewState extends State<ShelfTabView> {
       backgroundColor: TColor.primaryColor1,
       body: PageStorage(bucket: pageBucket, child: currentTab),
       bottomNavigationBar: BottomAppBar(
-          height: Platform.isIOS ? 70 : 65,
+          height: kIsWeb ? 60 : (Platform.isIOS ? 70 : 65),
           color: Colors.transparent,
           padding: const EdgeInsets.all(0),
           child: Container(
-            height: Platform.isIOS ? 70 : 65,
+            height: kIsWeb ? 60 : (Platform.isIOS ? 70 : 65),
             decoration: BoxDecoration(
                 color: TColor.primaryColor1,
                 boxShadow: [

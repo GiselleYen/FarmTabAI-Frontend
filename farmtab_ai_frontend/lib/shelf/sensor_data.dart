@@ -1,4 +1,5 @@
 import "package:farmtab_ai_frontend/nav tab/home_tab_view.dart";
+import "package:farmtab_ai_frontend/shelf/sensor_graph_tab.dart";
 import "package:flutter/material.dart";
 import "package:farmtab_ai_frontend/theme/color_extension.dart";
 
@@ -267,8 +268,9 @@ class _SensorDataState extends State<SensorData> with SingleTickerProviderStateM
                 ],
               ),
             ),
-            // Second tab content remains the same
-            Center(child: Text('Sensor Graph Content')),
+
+            // Second tab content
+            SensorGraphsTab(),
           ],
         ),
     );

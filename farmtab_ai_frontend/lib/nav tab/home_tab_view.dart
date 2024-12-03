@@ -1,17 +1,17 @@
-import 'dart:io';
+import 'dart:io' show Platform;
 import 'package:farmtab_ai_frontend/site/SiteList.dart';
 import 'package:farmtab_ai_frontend/site/site.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 import 'package:farmtab_ai_frontend/widget/tab_button.dart';
-import 'package:farmtab_ai_frontend/homepage/blank_view.dart';
-// import 'package:fitness/view/main_tab/select_view.dart';
 import 'package:flutter/material.dart';
 import 'package:farmtab_ai_frontend/homepage/home_page.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../profile/profile_view.dart';
 // import '../photo_progress/photo_progress_view.dart';
 // import '../profile/profile_view.dart';
 // import '../workout_tracker/workout_tracker_view.dart';
+
 
 class HomeTabView extends StatefulWidget {
   const HomeTabView({super.key});
@@ -53,11 +53,11 @@ class _HomeTabViewState extends State<HomeTabView> {
       //   ),
       // ),
       bottomNavigationBar: BottomAppBar(
-          height: Platform.isIOS ? 70 : 65,
+          height: kIsWeb ? 60 : (Platform.isIOS ? 70 : 65),
           color: Colors.transparent,
           padding: const EdgeInsets.all(0),
           child: Container(
-            height: Platform.isIOS ? 70 : 65,
+            height: kIsWeb ? 60 : (Platform.isIOS ? 70 : 65),
             decoration: const BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
