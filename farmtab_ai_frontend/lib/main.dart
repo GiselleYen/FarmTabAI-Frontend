@@ -24,10 +24,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'FarmTab AI',
       // home: OnboardingScreen(),
-      // home: HomeTabView(),
+      home: HomeTabView(),
       // home: SiteList(),
       // home: ShelfTabView(),
-      home: DatabaseTestPage(),
+      // home: DatabaseTestPage(),
       debugShowCheckedModeBanner: false,
     );
   }

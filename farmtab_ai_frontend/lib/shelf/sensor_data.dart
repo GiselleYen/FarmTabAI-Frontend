@@ -1,10 +1,15 @@
+import "dart:async";
+
 import "package:farmtab_ai_frontend/nav tab/home_tab_view.dart";
 import "package:farmtab_ai_frontend/shelf/sensor_graph_tab.dart";
 import "package:flutter/material.dart";
 import "package:farmtab_ai_frontend/theme/color_extension.dart";
 
+import "../services/sensor_services.dart";
 import "../widget_shelf/sensor_data_card.dart";
 import "../widget_shelf/sensor_data_item.dart";
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class SensorData extends StatefulWidget {
   const SensorData({super.key});
@@ -14,17 +19,36 @@ class SensorData extends StatefulWidget {
 
 class _SensorDataState extends State<SensorData> with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final SensorService _sensorService = SensorService();
+  Map<String, dynamic>? _latestTemperature;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _fetchLatestTemperature();
+    // Refresh data every 30 seconds
+    _refreshTimer = Timer.periodic(Duration(seconds: 10), (_) => _fetchLatestTemperature());
   }
 
   @override
   void dispose() {
+    _refreshTimer?.cancel();
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _fetchLatestTemperature() async {
+    try {
+      final data = await _sensorService.getLatestTemperature();
+      setState(() {
+        _latestTemperature = data;
+      });
+    } catch (e) {
+      print('Error fetching temperature: $e');
+      // Optionally show an error message to the user
+    }
   }
 
   @override
@@ -245,8 +269,10 @@ class _SensorDataState extends State<SensorData> with SingleTickerProviderStateM
                       SensorCard(
                         icon: Icons.thermostat,
                         label: 'Temperature',
-                        value: '25°C',
-                        status: 'Normal',
+                        value: _latestTemperature != null
+                            ? '${_latestTemperature!['temperature']}°C'
+                            : 'Loading...',
+                        status:  'Normal',
                         statusColor: Colors.green,
                       ),
                       SensorCard(

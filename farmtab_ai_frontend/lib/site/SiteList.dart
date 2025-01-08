@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 import '../homepage/notification_view.dart';
+import '../widget/add_farm_modal.dart';
 import '../widget/card_horizontal.dart';
 
 class SiteList extends StatefulWidget {
@@ -83,6 +84,32 @@ class _SiteListState extends State<SiteList> {
                         ),
                       ),
                       const Spacer(),
+                      IconButton(
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (context) => Padding(
+                              padding: EdgeInsets.only(
+                                bottom: MediaQuery.of(context).viewInsets.bottom,
+                              ),
+                              child: AddFarmModal(
+                                onSave: (name, description, image) {
+                                  // Handle the saved farm data here
+                                  print('Farm Name: $name');
+                                  print('Description: $description');
+                                  print('Image: ${image?.path}');
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                        icon: Icon(
+                          Icons.add,
+                          color: TColor.primaryColor1,
+                          size: 26,//
+                        ),
+                      ),
                       IconButton(
                         onPressed: () {
                           Navigator.push(
