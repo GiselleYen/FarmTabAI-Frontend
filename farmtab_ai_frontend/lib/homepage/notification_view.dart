@@ -83,5 +83,5 @@ class _NotificationViewState extends State<NotificationView> {
         return Divider(color: TColor.gray.withOpacity(0.5), height: 1, );
       }, itemCount: notificationArr.length),
     );
-  }
+  }//
 }

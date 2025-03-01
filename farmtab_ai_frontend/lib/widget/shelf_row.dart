@@ -2,20 +2,21 @@ import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_animation_progress_bar/simple_animation_progress_bar.dart';
 
-class WorkoutRow extends StatelessWidget {
+class ShelfRow extends StatelessWidget {
   final Map wObj;
-  const WorkoutRow({super.key, required this.wObj});
+  const ShelfRow({super.key, required this.wObj});
 
   @override
   Widget build(BuildContext context) {
     var media = MediaQuery.of(context).size;
     return Container(
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
         decoration: BoxDecoration(
             color: TColor.white,
             borderRadius: BorderRadius.circular(20),
-            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2)]),
+            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2)]
+        ),
         child: Row(
           children: [
             ClipRRect(
@@ -27,8 +28,7 @@ class WorkoutRow extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
-
-            const SizedBox(width: 15,),
+            const SizedBox(width: 15),
             Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,19 +36,21 @@ class WorkoutRow extends StatelessWidget {
                     Text(
                       wObj["name"].toString(),
                       style: TextStyle(
-                          color: TColor.black,
-                          fontSize: 12),
+                          color: TColor.primaryColor1,
+                          fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'OpenSans',
+                      ),
                     ),
-
                     Text(
-                      "${ wObj["kcal"].toString() } Calories Burn | ${wObj["time"].toString()}minutes",
+                      "pH: ${wObj["pH"].toString()} | EC: ${wObj["EC"].toString()}",
                       style: TextStyle(
-                        color: TColor.gray,
-                        fontSize: 10,),
+                        color: TColor.secondaryColor2,
+                        fontSize: 11,
+                        fontFamily: 'Inter',
+                      ),
                     ),
-
-                    const SizedBox(height: 4,),
-
+                    const SizedBox(height: 4),
                     SimpleAnimationProgressBar(
                       height: 15,
                       width: media.width * 0.5,
@@ -62,20 +64,34 @@ class WorkoutRow extends StatelessWidget {
                       gradientColor: LinearGradient(
                           colors: TColor.primaryG,
                           begin: Alignment.centerLeft,
-                          end: Alignment.centerRight),
+                          end: Alignment.centerRight
+                      ),
                     ),
-
                   ],
-                )),
+                )
+            ),
             IconButton(
-                onPressed: () {},
-                icon: Image.asset(
-                  "assets/images/next_icon.png",
-                  width: 30,
-                  height: 30,
-                  fit: BoxFit.contain,
-                ))
+              onPressed: () {},
+              icon: ShaderMask(
+                shaderCallback: (Rect bounds) {
+                  return LinearGradient(
+                    colors: const [
+                      Color(0xFF76C893),
+                      Color(0xFF2D5523),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ).createShader(bounds);
+                },
+                child: const Icon(
+                  Icons.arrow_circle_right_outlined,
+                  size: 32,
+                  color: Colors.white,  // This color will be replaced by the gradient
+                ),
+              ),
+            )
           ],
-        ));
+        )
+    );
   }
 }

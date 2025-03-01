@@ -1,18 +1,13 @@
 import 'dart:io' show Platform;
 import 'package:farmtab_ai_frontend/shelf/calibration.dart';
-import 'package:farmtab_ai_frontend/shelf/sensor_data.dart';
+import 'package:farmtab_ai_frontend/shelf/sensor_data_dashboard.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
-import 'package:farmtab_ai_frontend/widget_shelf/shelf_tab_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-
-import '../profile/profile_view.dart';
 import '../shelf/chat.dart';
 import '../shelf/devices_mange.dart';
 
 class ShelfTabView extends StatefulWidget {
   const ShelfTabView({super.key});
-
   @override
   State<ShelfTabView> createState() => _ShelfTabViewState();
 }
@@ -20,78 +15,131 @@ class ShelfTabView extends StatefulWidget {
 class _ShelfTabViewState extends State<ShelfTabView> {
   int selectTab = 0;
   final PageStorageBucket pageBucket = PageStorageBucket();
-  Widget currentTab = const SensorData();
+  Widget currentTab = const SensorDataDashboard();
+  bool isExpanded = false;
+
+  void _toggleExpanded() {
+    setState(() {
+      isExpanded = !isExpanded;
+    });
+  }
+
+  Widget _buildActionButton(String label, String iconPath, int tabIndex, VoidCallback onPressed) {
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 200),
+      opacity: isExpanded ? 1.0 : 0.0,
+      child: AnimatedSlide(
+        duration: const Duration(milliseconds: 200),
+        offset: isExpanded ? Offset.zero : const Offset(0.2, 0),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Material(
+              color: TColor.primaryColor1,
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Text(
+                  label,
+                  style: const TextStyle(color: Colors.white, fontFamily: "Poppins",),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            FloatingActionButton(
+              heroTag: "fab_$tabIndex",
+              mini: true,
+              backgroundColor: selectTab == tabIndex ? TColor.primaryColor1 : Colors.grey,
+              onPressed: onPressed,
+              child: Image.asset(
+                iconPath,
+                width: 20,
+                height: 20,
+                color: selectTab == tabIndex ? Colors.white : Colors.white54,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: TColor.primaryColor1,
-      body: PageStorage(bucket: pageBucket, child: currentTab),
-      bottomNavigationBar: BottomAppBar(
-          height: kIsWeb ? 60 : (Platform.isIOS ? 70 : 65),
-          color: Colors.transparent,
-          padding: const EdgeInsets.all(0),
-          child: Container(
-            height: kIsWeb ? 60 : (Platform.isIOS ? 70 : 65),
-            decoration: BoxDecoration(
-                color: TColor.primaryColor1,
-                boxShadow: [
-                  BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, -2))
-                ]),//
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ShelfTabButton(
-                    icon: "assets/images/sensor.png",
-                    tabTitle: "Sensor",
-                    isActive: selectTab == 0,
-                    onTap: () {
-                      selectTab = 0;
-                      currentTab = const SensorData();
-                      if (mounted) {
-                        setState(() {});
-                      }
-                    }),
-                ShelfTabButton(//
-                    icon: "assets/images/calibrate.png",
-                    tabTitle: "Calibration",
-                    isActive: selectTab == 1,
-                    onTap: () {
-                      selectTab = 1;
-                      currentTab = CalibrationPage();
-                      if (mounted) {
-                        setState(() {});
-                      }
-                    }),
-                // const  SizedBox(width: 40,),
-                ShelfTabButton(
-                    icon: "assets/images/devices.png",
-                    tabTitle: "Devices",
-                    isActive: selectTab == 2,
-                    onTap: () {
-                      selectTab = 2;
-                      currentTab = const DevicesMangePage();
-                      if (mounted) {
-                        setState(() {});
-                      }
-                    }),
-                ShelfTabButton(
-                    icon: "assets/images/chat.png",
-                    tabTitle: "AI Chat",
-                    isActive: selectTab == 3,
-                    onTap: () {
-                      // selectTab = 3;
-                      // currentTab = ChatPage();
-                      // if (mounted) {
-                      //   setState(() {});//
-                      // }
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ChatPage()),
-                      );
-                    })
-              ],
+      body: PageStorage(
+        bucket: pageBucket,
+        child: currentTab,
+      ),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          _buildActionButton(
+            "Sensors",
+            "assets/images/sensor.png",
+            0,
+                () {
+              selectTab = 0;
+              currentTab = const SensorDataDashboard();
+              _toggleExpanded();
+              setState(() {});
+            },
+          ),
+          const SizedBox(height: 16),
+          _buildActionButton(
+            "Calibration",
+            "assets/images/calibrate.png",
+            1,
+                () {
+              selectTab = 1;
+              currentTab = CalibrationPage();
+              _toggleExpanded();
+              setState(() {});
+            },
+          ),
+          const SizedBox(height: 16),
+          _buildActionButton(
+            "Devices",
+            "assets/images/devices.png",
+            2,
+                () {
+              selectTab = 2;
+              currentTab = const DevicesMangePage();
+              _toggleExpanded();
+              setState(() {});
+            },
+          ),
+          const SizedBox(height: 16),
+          _buildActionButton(
+            "Chat",
+            "assets/images/chat.png",
+            3,
+                () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ChatPage()),
+              );
+              _toggleExpanded();
+            },
+          ),
+          const SizedBox(height: 16),
+          FloatingActionButton(
+            heroTag: "fab_main",
+            onPressed: _toggleExpanded,
+            backgroundColor: TColor.primaryColor1,
+            child: AnimatedRotation(
+              duration: const Duration(milliseconds: 200),
+              turns: isExpanded ? 0.125 : 0, // Rotates 45 degrees
+              child: const Icon(
+                Icons.menu,
+                color: Colors.white,
+              ),
             ),
-          )),
+          ),
+        ],
+      ),
     );
   }
 }

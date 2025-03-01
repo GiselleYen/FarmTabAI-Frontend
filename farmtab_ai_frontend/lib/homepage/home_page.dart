@@ -1,13 +1,11 @@
-import 'package:dotted_dashed_line/dotted_dashed_line.dart';
 import 'package:farmtab_ai_frontend/login_register/welcome_screen.dart';
+import 'package:farmtab_ai_frontend/nav%20tab/shelf_tab_view.dart';
 import 'package:farmtab_ai_frontend/widget/round_button.dart';
-import 'package:farmtab_ai_frontend/widget/workout_row.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:simple_animation_progress_bar/simple_animation_progress_bar.dart';
-import 'package:simple_circular_progress_bar/simple_circular_progress_bar.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
-import 'activity_tracker_view.dart';
+import '../widget/shelf_carousel.dart';
+import '../widget/shelf_row.dart';
 import 'finished_workout_view.dart';
 import 'notification_view.dart';
 
@@ -19,29 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List lastWorkoutArr = [
-    {
-      "name": "Full Body Workout",
-      "image": "assets/images/Workout1.png",
-      "kcal": "180",
-      "time": "20",
-      "progress": 0.3,
-    },
-    {
-      "name": "Lower Body Workout",
-      "image": "assets/images/Workout2.png",
-      "kcal": "200",
-      "time": "30",
-      "progress": 0.4,
-    },
-    {
-      "name": "Ab Workout",
-      "image": "assets/images/Workout3.png",
-      "kcal": "300",
-      "time": "40",
-      "progress": 0.7
-    },
-  ];
+
   List<int> showingTooltipOnSpots = [21];
   List<FlSpot> get allSpots => const [
     FlSpot(0, 20),
@@ -77,7 +53,32 @@ class _HomePageState extends State<HomePage> {
     FlSpot(30, 40)
   ];
 
+  int unreadNotifications = 3;
   int touchedIndex = -1;
+  String selectedFarm = 'Farm A';
+  List lastShelfArr = [
+    {
+      "name": "Shelf A",
+      "image": "assets/images/shelfA.jpg",
+      "pH": "7.5",
+      "EC": "200",
+      "progress": 0.3
+    },
+    {
+      "name": "Shelf B",
+      "image": "assets/images/shelfB.jpg",
+      "pH": "6.5",
+      "EC": "300",
+      "progress": 0.4
+    },
+    {
+      "name": "Shelf C",
+      "image": "assets/images/shelfC.jpg",
+      "pH": "8.5",
+      "EC": "400",
+      "progress": 0.7
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -106,27 +107,15 @@ class _HomePageState extends State<HomePage> {
     final tooltipsOnBar = lineBarsData[0];
 
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: Colors.white,
-      //   centerTitle: true,
-      //   elevation: 0,
-      //   leadingWidth: 0,
-      //   toolbarHeight: 45,
-      //   title: Text(
-      //     "FarmTab AI",
-      //     style: TextStyle(
-      //         color: TColor.primaryColor1, fontSize: 20, fontWeight: FontWeight.w700),
-      //   ),
-      // ),
       backgroundColor: TColor.white,
       body: SingleChildScrollView(
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 10,),
+                SizedBox(height: 6,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -137,8 +126,9 @@ class _HomePageState extends State<HomePage> {
                           "Hi Abby,",
                           style: TextStyle(
                             color: TColor.primaryColor1,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Inter',
                           ),
                         ),
                         Text(
@@ -146,28 +136,59 @@ class _HomePageState extends State<HomePage> {
                           style: TextStyle(
                             color: TColor.primaryColor1,
                             fontSize: 20,
-                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Inter',
                           ),
                         ),
                       ],
                     ),
                     Row(
                       children: [
-                        IconButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const NotificationView(),
+                        Stack(
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const NotificationView(),
+                                  ),
+                                );
+                              },
+                              icon: Icon(
+                                Icons.notifications_none_sharp,
+                                size: 28,
+                                color: TColor.primaryColor1,
+                              ),
+                            ),
+
+                            // Show badge only if there are unread notifications
+                            if (unreadNotifications > 0)
+                              Positioned(
+                                right: 5, // Position on the top-right corner
+                                top: 5,
+                                child: Container(
+                                  padding: EdgeInsets.all(5), // Adjust padding for better fit
+                                  decoration: BoxDecoration(
+                                    color: Colors.red, // Badge background color
+                                    shape: BoxShape.circle, // Circular shape
+                                  ),
+                                  constraints: BoxConstraints(
+                                    minWidth: 8, // Minimum size of the badge
+                                    minHeight: 8,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      unreadNotifications.toString(), // Display unread count
+                                      style: TextStyle(
+                                        color: Colors.white, // Text color
+                                        fontSize: 12, // Adjust text size
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              );
-                            },
-                            icon: Image.asset(
-                              "assets/images/notification_active.png",
-                              width: 24,
-                              height: 24,
-                              fit: BoxFit.fitHeight,
-                            )
+                              ),
+                          ],
                         ),
                         const SizedBox(width: 5),
                         Container(
@@ -185,69 +206,106 @@ class _HomePageState extends State<HomePage> {
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
-                              // CircleAvatar with profile image
-                              const CircleAvatar(
-                                radius: 22, // Adjust size
-                                backgroundImage: AssetImage("assets/images/profile_photo.jpg"), // Replace with your asset path
-                              ),
-                              // Dropdown button positioned on top of the avatar
-                              Positioned(
-                                top: 10,
-                                right: 20,
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    items: [
-                                      DropdownMenuItem<String>(
-                                        value: "Profile",
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.account_circle, color: TColor.primaryColor1), // Profile icon
-                                            SizedBox(width: 8),
-                                            Text(
-                                              "Profile Info",
-                                              style: TextStyle(color: TColor.primaryColor1, fontSize: 14),
+                              PopupMenuButton<String>(
+                                onSelected: (value) {
+                                  if (value == 'profile') {
+                                    // Navigate to Profile Screen
+                                    // Navigator.push(
+                                    //   context,
+                                    //   MaterialPageRoute(builder: (context) => ProfileScreen()), // Replace with your Profile screen widget
+                                    // );
+                                  } else if (value == 'logout') {
+                                    // Handle Log Out action
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        backgroundColor: Colors.white,
+                                        title: Text(
+                                          "Log Out",
+                                          style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Inter',),
+                                        ),
+                                        content: Text(
+                                          "Are you sure you want to log out?",
+                                          style: TextStyle(fontFamily: 'Inter',),
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(context), // Close dialog
+                                            child: Text(
+                                              "Cancel",
+                                              style: TextStyle(
+                                                fontFamily: 'Inter',
+                                                color: Colors.grey,
+                                              ),
                                             ),
-                                          ],
-                                        ),
-                                      ),
-                                      DropdownMenuItem<String>(
-                                        value: "Logout",
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.exit_to_app, color: TColor.primaryColor1), // Logout icon
-                                            SizedBox(width: 8),
-                                            Text(
-                                              "Log Out",
-                                              style: TextStyle(color: TColor.primaryColor1, fontSize: 14),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context); // Close dialog
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(builder: (context) => WelcomeScreen(),
+                                                ),
+                                              );
+                                            },
+                                            child: Text(
+                                                "Log Out",
+                                              style: TextStyle(
+                                                fontFamily: 'Inter',
+                                                fontWeight: FontWeight.bold,
+                                                color: TColor.primaryColor1, // Cancel button color
+                                              ),
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                    onChanged: (value) {
-                                    if (value == "Profile") {
-                                      // Navigate to Profile page
-                                      // Navigator.push(
-                                      //   context,
-                                      //   MaterialPageRoute(builder: (context) => ProfilePage()),
-                                      // );
-                                    } else if (value == "Logout") {
-                                      // Handle log out action here
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => WelcomeScreen(),
+                                    );
+                                  }
+                                },
+                                shape: RoundedRectangleBorder( // Custom border for menu
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                color: Colors.white, // Background color of menu
+                                elevation: 8, // Shadow effect
+                                constraints: BoxConstraints(
+                                  minWidth: 100, // Set the width of the dropdown menu
+                                ),
+                                itemBuilder: (context) => [
+                                  PopupMenuItem(
+                                    value: 'profile',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.account_circle, color: TColor.primaryColor1),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          "Profile Info",
+                                          style: TextStyle(color: TColor.primaryColor1, fontSize: 14, fontFamily: 'Poppins',),
                                         ),
-                                      );
-                                    }
-                                  },
-                                    dropdownColor: Colors.white,
+                                      ],
+                                    ),
                                   ),
+                                  PopupMenuItem(
+                                    value: 'logout',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.exit_to_app, color: TColor.primaryColor1),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          "Log Out",
+                                          style: TextStyle(color: TColor.primaryColor1, fontSize: 14, fontFamily: 'Poppins',),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                                child: CircleAvatar(
+                                  radius: 26, // Adjust size
+                                  backgroundImage: AssetImage("assets/images/profile_photo.jpg"), // Replace with your asset path
                                 ),
                               ),
                             ],
                           ),
                         )
-
                       ],
                     ),
                   ],
@@ -256,274 +314,314 @@ class _HomePageState extends State<HomePage> {
                   height: 10,
                 ),
                 Container(
-                  height: media.width * 0.55,
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: TColor.primaryG),
-                      borderRadius: BorderRadius.circular(media.width * 0.025)),
-                  child: Stack(alignment: Alignment.center, children: [
-                    Image.asset(
-                      "assets/images/bg_dots.png",
-                      height: media.width * 0.55,
-                      width: double.maxFinite,
-                      fit: BoxFit.fitHeight,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SizedBox(width: 20,),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Today Plant Condition",
-                                style: TextStyle(
-                                    color: TColor.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700),
-                              ),
-                              Text(
-                                "Your plant overall is good!",
-                                style: TextStyle(
-                                    color: TColor.white.withOpacity(0.8),
-                                    fontSize: 12),
-                              ),
-                              SizedBox(
-                                height: media.width * 0.05,
-                              ),
-                              SizedBox(
-                                  width: 120,
-                                  height: 35,
-                                  child: RoundButton(
-                                      title: "View More",
-                                      type: RoundButtonType.bgSGradient,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w400,
-                                      onPressed: () {}))
-                            ],
-                          ),
-                          AspectRatio(
-                            aspectRatio: 0.90,
-                            child: PieChart(
-                              PieChartData(
-                                pieTouchData: PieTouchData(
-                                  touchCallback:
-                                      (FlTouchEvent event, pieTouchResponse) {},
-                                ),
-                                startDegreeOffset: 250,
-                                borderData: FlBorderData(
-                                  show: false,
-                                ),
-                                sectionsSpace: 1,
-                                centerSpaceRadius: 0,
-                                sections: showingSections(),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ]),
+                  child: ShelfCarousel(),
                 ),
                 SizedBox(
-                  height: media.width * 0.05,
+                  height: media.width * 0.01,
                 ),
-                Container(
-                  padding:
-                  const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-                  decoration: BoxDecoration(
-                    color: TColor.primaryColor2.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        // track the harvest time
-                        "Your plants already growed 30 days !",
-                        style: TextStyle(
-                            color: TColor.black,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700),
-                      ),
-                      SizedBox(
-                        width: 80,
-                        height: 25,
-                        child: RoundButton(
-                          title: "Harvest",
-                          type: RoundButtonType.bgGradient,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
-                          onPressed: () {
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (context) =>
-                            //     const ActivityTrackerView(),
-                            //   ),
-                            // );
-                          },
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: media.width * 0.05,
-                ),
+                // Container(
+                //   padding:
+                //   const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                //   decoration: BoxDecoration(
+                //     color: TColor.primaryColor2.withOpacity(0.3),
+                //     borderRadius: BorderRadius.circular(15),
+                //   ),
+                //   child: Row(
+                //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //     children: [
+                //       Text(
+                //         // track the harvest time
+                //         "Your plants already growed 30 days !",
+                //         style: TextStyle(
+                //             color: TColor.black,
+                //             fontSize: 12,
+                //             fontWeight: FontWeight.w700),
+                //       ),
+                //       SizedBox(
+                //         width: 80,
+                //         height: 25,
+                //         child: RoundButton(
+                //           title: "Harvest",
+                //           type: RoundButtonType.bgGradient,
+                //           fontSize: 12,
+                //           fontWeight: FontWeight.w400,
+                //           onPressed: () {
+                //             // Navigator.push(
+                //             //   context,
+                //             //   MaterialPageRoute(
+                //             //     builder: (context) =>
+                //             //     const ActivityTrackerView(),
+                //             //   ),
+                //             // );
+                //           },
+                //         ),
+                //       )
+                //     ],
+                //   ),
+                // ),,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Activity Progress",
+                      "Daily Average Health",
                       style: TextStyle(
                         color: TColor.primaryColor1,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
                       ),
                     ),
-                    // Container(
-                    //     height: 30,
-                    //     padding: const EdgeInsets.symmetric(horizontal: 8),
-                    //     decoration: BoxDecoration(
-                    //       gradient: LinearGradient(colors: TColor.primaryG),
-                    //       borderRadius: BorderRadius.circular(15),
-                    //     ),
-                    //     child: DropdownButtonHideUnderline(
-                    //       child: DropdownButton(
-                    //         items: ["Weekly", "Monthly"]
-                    //             .map((name) => DropdownMenuItem(
-                    //           value: name,
-                    //           child: Text(
-                    //             name,
-                    //             style: TextStyle(
-                    //                 color: TColor.gray, fontSize: 14),
-                    //           ),
-                    //         ))
-                    //             .toList(),
-                    //         onChanged: (value) {},
-                    //         icon: Icon(Icons.expand_more, color: TColor.white),
-                    //         hint: Text(
-                    //           "Weekly",
-                    //           textAlign: TextAlign.center,
-                    //           style: TextStyle(color: TColor.white, fontSize: 12),
-                    //         ),
-                    //       ),
-                    //     )
-                    // ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.filter_list,
+                        color: TColor.primaryColor1,
+                      ),
+                      onPressed: () {
+
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return StatefulBuilder(
+                              builder: (context, setState) {
+                                return AlertDialog(
+                                  backgroundColor: Colors.white, // Customize background color
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15), // Rounded corners
+                                  ),
+                                  title: Text(
+                                    'Select Farm',
+                                    style: TextStyle(
+                                      color: TColor.primaryColor1,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "Poppins",
+                                    ),
+                                  ),
+                                  content: Container(
+                                    width: double.minPositive, // Constrains dialog width
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        RadioListTile<String>(
+                                          title: Text(
+                                              'Farm A',
+                                            style: TextStyle(
+                                              fontFamily: "Inter",
+                                            ),
+                                          ),
+                                          value: 'Farm A',
+                                          groupValue: selectedFarm,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              selectedFarm = value!;
+                                            });
+                                          },
+                                          activeColor: TColor.primaryColor1, // Radio button color when selected
+                                        ),
+                                        RadioListTile<String>(
+                                          title: Text(
+                                            'Farm B',
+                                            style: TextStyle(
+                                              fontFamily: "Inter",
+                                            ),
+                                          ),
+                                          value: 'Farm B',
+                                          groupValue: selectedFarm,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              selectedFarm = value!;
+                                            });
+                                          },
+                                          activeColor: TColor.primaryColor1,
+                                        ),
+                                        RadioListTile<String>(
+                                          title: Text(
+                                            'Farm C',
+                                            style: TextStyle(
+                                              fontFamily: "Inter",
+                                            ),
+                                          ),
+                                          value: 'Farm C',
+                                          groupValue: selectedFarm,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              selectedFarm = value!;
+                                            });
+                                          },
+                                          activeColor: TColor.primaryColor1,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      child: Text(
+                                        'Cancel',
+                                        style: TextStyle(fontFamily: 'Inter',
+                                          color: Colors.grey,),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: Text(
+                                        'Apply',
+                                        style: TextStyle(fontFamily: 'Inter',fontWeight: FontWeight.bold, color: TColor.primaryColor1),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.pop(context, selectedFarm);
+                                      },
+                                    ),
+                                  ],
+                                  actionsPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Padding for buttons
+                                  contentPadding: EdgeInsets.fromLTRB(24, 20, 24, 0), // Custom padding for content
+                                  insetPadding: EdgeInsets.symmetric(horizontal: 40), // Dialog margin from screen edges
+                                );
+                              },
+                            );
+                          },
+                        ).then((value) {
+                          if (value != null) {
+                            // Handle the selected farm here
+                            print('Selected farm: $value');
+                          }
+                        });
+                      },
+                    ),
                   ],
                 ),
                 SizedBox(
-                  height: media.width * 0.05,
+                  height: media.width * 0.01,
                 ),
                 Container(
-                  height: media.width * 0.5,
-                  padding: const EdgeInsets.symmetric(vertical: 15 , horizontal: 0),
+                  height: media.width * 0.6,
+                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
                   decoration: BoxDecoration(
-                      color: TColor.white,
-                      borderRadius: BorderRadius.circular(15),
-                      boxShadow: const [
-                        BoxShadow(color: Colors.black12, blurRadius: 3)
-                      ]),
-                  child: BarChart(
-                      BarChartData(
-                        barTouchData: BarTouchData(
-                          touchTooltipData: BarTouchTooltipData(
-                            //tooltipBgColor: Colors.grey,
-                            tooltipHorizontalAlignment: FLHorizontalAlignment.right,
-                            tooltipMargin: 10,
-                            getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                              String weekDay;
-                              switch (group.x) {
-                                case 0:
-                                  weekDay = 'Monday';
-                                  break;
-                                case 1:
-                                  weekDay = 'Tuesday';
-                                  break;
-                                case 2:
-                                  weekDay = 'Wednesday';
-                                  break;
-                                case 3:
-                                  weekDay = 'Thursday';
-                                  break;
-                                case 4:
-                                  weekDay = 'Friday';
-                                  break;
-                                case 5:
-                                  weekDay = 'Saturday';
-                                  break;
-                                case 6:
-                                  weekDay = 'Sunday';
-                                  break;
-                                default:
-                                  throw Error();
-                              }
-                              return BarTooltipItem(
-                                '$weekDay\n',
-                                const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text: (rod.toY - 1).toString(),
-                                    style: TextStyle(
-                                      color: TColor.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
+                    color: TColor.white,
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 3)],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start, // Align items at the top
+                    children: [
+                      // Farm Title (Centered)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 1), // Add spacing
+                        child: Center(
+                          child: Text(
+                            selectedFarm ?? 'Farm A',
+                            style: TextStyle(
+                              color: TColor.primaryColor1,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Inter",
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10), // Adds spacing between title and chart
+
+                      // Bar Chart
+                      Expanded(
+                        child: BarChart(
+                          BarChartData(
+                            barTouchData: BarTouchData(
+                              touchTooltipData: BarTouchTooltipData(
+                                tooltipHorizontalAlignment: FLHorizontalAlignment.right,
+                                tooltipMargin: 10,
+                                getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                                  String weekDay;
+                                  switch (group.x) {
+                                    case 0:
+                                      weekDay = 'Monday';
+                                      break;
+                                    case 1:
+                                      weekDay = 'Tuesday';
+                                      break;
+                                    case 2:
+                                      weekDay = 'Wednesday';
+                                      break;
+                                    case 3:
+                                      weekDay = 'Thursday';
+                                      break;
+                                    case 4:
+                                      weekDay = 'Friday';
+                                      break;
+                                    case 5:
+                                      weekDay = 'Saturday';
+                                      break;
+                                    case 6:
+                                      weekDay = 'Sunday';
+                                      break;
+                                    default:
+                                      throw Error();
+                                  }
+                                  return BarTooltipItem(
+                                    '$weekDay\n',
+                                    const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
                                     ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                          touchCallback: (FlTouchEvent event, barTouchResponse) {
-                            setState(() {
-                              if (!event.isInterestedForInteractions ||
-                                  barTouchResponse == null ||
-                                  barTouchResponse.spot == null) {
-                                touchedIndex = -1;
-                                return;
-                              }
-                              touchedIndex =
-                                  barTouchResponse.spot!.touchedBarGroupIndex;
-                            });
-                          },
-                        ),
-                        titlesData: FlTitlesData(
-                          show: true,
-                          rightTitles:  AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          topTitles:  AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              getTitlesWidget: getTitles,
-                              reservedSize: 38,
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                        text: (rod.toY - 1).toString(),
+                                        style: TextStyle(
+                                          color: TColor.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                              touchCallback: (FlTouchEvent event, barTouchResponse) {
+                                setState(() {
+                                  if (!event.isInterestedForInteractions ||
+                                      barTouchResponse == null ||
+                                      barTouchResponse.spot == null) {
+                                    touchedIndex = -1;
+                                    return;
+                                  }
+                                  touchedIndex =
+                                      barTouchResponse.spot!.touchedBarGroupIndex;
+                                });
+                              },
                             ),
-                          ),
-                          leftTitles:  AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: false,
+                            titlesData: FlTitlesData(
+                              show: true,
+                              rightTitles: AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
+                              topTitles: AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
+                              bottomTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  getTitlesWidget: getTitles,
+                                  reservedSize: 38,
+                                ),
+                              ),
+                              leftTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: false,
+                                ),
+                              ),
                             ),
+                            borderData: FlBorderData(
+                              show: false,
+                            ),
+                            barGroups: showingGroups(),
+                            gridData: FlGridData(show: false),
                           ),
                         ),
-                        borderData: FlBorderData(
-                          show: false,
-                        ),
-                        barGroups: showingGroups(),
-                        gridData:  FlGridData(show: false),
-                      )
+                      ),
+                    ],
                   ),
                 ),
+
                 SizedBox(
                   height: media.width * 0.05,
                 ),
@@ -533,15 +631,16 @@ class _HomePageState extends State<HomePage> {
                     color: TColor.primaryColor1,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
                   ),
                 ),
                 SizedBox(
-                  height: media.width * 0.02,
+                  height: media.width * 0.04,
                 ),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(25),
                   child: Container(
-                    height: media.width * 0.4,
+                    height: media.width * 0.48,
                     width: double.maxFinite,
                     decoration: BoxDecoration(
                       color: TColor.primaryColor2.withOpacity(0.3),
@@ -552,36 +651,52 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              vertical: 20, horizontal: 20),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            vertical: 16,
+                            horizontal: 18,
+                          ),
+                          child: Row(  // Added Row to place icon and texts side by side
                             children: [
-                              Text(
-                                "Temperature",
-                                style: TextStyle(
-                                    color: TColor.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700),
-                              ),
-                              ShaderMask(
-                                blendMode: BlendMode.srcIn,
-                                shaderCallback: (bounds) {
-                                  return LinearGradient(
-                                      colors: TColor.primaryG,
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight)
-                                      .createShader(Rect.fromLTRB(
-                                      0, 0, bounds.width, bounds.height));
-                                },
-                                child: Text(
-                                  "27°C",
-                                  style: TextStyle(
-                                      color: TColor.white.withOpacity(0.7),
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 18),
+                              Container(
+                                padding: EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: LinearGradient(
+                                    colors: [Colors.orange, Colors.redAccent],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
                                 ),
+                                child: Icon(
+                                  Icons.thermostat,
+                                  color: Colors.white,
+                                  size: 22,
+                                ),
+                              ),
+                              SizedBox(width: 10),  // Added spacing between icon and texts
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Temperature",
+                                    style: TextStyle(
+                                      color: TColor.primaryColor1,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      fontFamily: 'Inter',
+                                    ),
+                                  ),
+                                  Text(
+                                    "27°C",
+                                    style: TextStyle(
+                                      color: TColor.primaryColor1,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      fontFamily: 'Inter',
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -695,41 +810,33 @@ class _HomePageState extends State<HomePage> {
                         color: TColor.primaryColor1,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        "See More",
-                        style: TextStyle(
-                            color: TColor.gray,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700),
-                      ),
-                    )
                   ],
                 ),
-                // ListView.builder(
-                //     padding: EdgeInsets.zero,
-                //     physics: const NeverScrollableScrollPhysics(),
-                //     shrinkWrap: true,
-                //     itemCount: lastWorkoutArr.length,
-                //     itemBuilder: (context, index) {
-                //       var wObj = lastWorkoutArr[index] as Map? ?? {};
-                //       return InkWell(
-                //           onTap: () {
-                //             Navigator.push(
-                //               context,
-                //               MaterialPageRoute(
-                //                 builder: (context) =>
-                //                 const FinishedWorkoutView(),
-                //               ),
-                //             );
-                //           },
-                //           child: WorkoutRow(wObj: wObj));
-                //     }),
+                SizedBox(height: media.width * 0.01),
+                ListView.builder(
+                    padding: EdgeInsets.zero,
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: lastShelfArr.length,
+                    itemBuilder: (context, index) {
+                      var wObj = lastShelfArr[index] as Map? ?? {};
+                      return InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                const ShelfTabView(),
+                              ),
+                            );
+                          },
+                          child: ShelfRow(wObj: wObj));
+                    }),
                 SizedBox(
-                  height: media.width * 0.1,
+                  height: media.width * 0.05,
                 ),
               ],
             ),
@@ -739,48 +846,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  List<PieChartSectionData> showingSections() {
-    return List.generate(
-      2,
-          (i) {
-        var color0 = TColor.secondaryColor1;
-
-        switch (i) {
-          case 0:
-            return PieChartSectionData(
-                color: color0,
-                value: 90,
-                title: '',
-                radius: 55,
-                titlePositionPercentageOffset: 0.55,
-                badgeWidget: const Text(
-                  "90.1",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700),
-                ));
-          case 1:
-            return PieChartSectionData(
-              color: Colors.white,
-              value: 10,
-              title: '',
-              radius: 45,
-              titlePositionPercentageOffset: 0.55,
-            );
-
-          default:
-            throw Error();
-        }
-      },
-    );
-  }
-
   Widget getTitles(double value, TitleMeta meta) {
     var style = TextStyle(
-      color: TColor.gray,
+      color: TColor.primaryColor1.withOpacity(0.6),
       fontWeight: FontWeight.w500,
       fontSize: 12,
+      fontFamily: "Inter",
     );
     Widget text;
     switch (value.toInt()) {
@@ -963,52 +1034,5 @@ class _HomePageState extends State<HomePage> {
           fontSize: 12,
         ),
         textAlign: TextAlign.center);
-  }
-
-  SideTitles get bottomTitles => SideTitles(
-    showTitles: true,
-    reservedSize: 32,
-    interval: 1,
-    getTitlesWidget: bottomTitleWidgets,
-  );
-
-  Widget bottomTitleWidgets(double value, TitleMeta meta) {
-    var style = TextStyle(
-      color: TColor.gray,
-      fontSize: 12,
-    );
-    Widget text;
-    switch (value.toInt()) {
-      case 1:
-        text = Text('Sun', style: style);
-        break;
-      case 2:
-        text = Text('Mon', style: style);
-        break;
-      case 3:
-        text = Text('Tue', style: style);
-        break;
-      case 4:
-        text = Text('Wed', style: style);
-        break;
-      case 5:
-        text = Text('Thu', style: style);
-        break;
-      case 6:
-        text = Text('Fri', style: style);
-        break;
-      case 7:
-        text = Text('Sat', style: style);
-        break;
-      default:
-        text = const Text('');
-        break;
-    }
-
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      space: 10,
-      child: text,
-    );
   }
 }

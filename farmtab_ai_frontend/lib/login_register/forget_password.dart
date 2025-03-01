@@ -47,8 +47,9 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                       Text(
                         'Reset Password',
                         style: TextStyle(
-                          fontSize: 30.0,
-                          fontWeight: FontWeight.w900,
+                          fontSize: 26.0,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Poppins',
                           color: TColor.primaryColor1,
                         ),
                       ),
@@ -56,6 +57,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                         height: 40.0,
                       ),
                       TextFormField(
+                        cursorColor: TColor.primaryColor1.withOpacity(0.7),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Email';
@@ -63,20 +65,29 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                           return null;
                         },
                         decoration: InputDecoration(
-
-                          hintText: 'Enter Your Account Email',
-                          hintStyle: TextStyle(
-                            color: TColor.primaryColor1.withOpacity(0.3),
+                          label: Text(
+                            'Enter Your Account Email',
+                            style: TextStyle(
+                              color: TColor.primaryColor1.withOpacity(0.5),
+                              fontFamily: 'Poppins',
+                            ),
                           ),
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: TColor.primaryColor1, // Default border color
+                              color: TColor.primaryColor1,
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: TColor.primaryColor1.withOpacity(0.3), // Default border color
+                              color: TColor.primaryColor1.withOpacity(0.3),
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          focusedBorder: OutlineInputBorder( // Border when clicking
+                            borderSide: BorderSide(
+                              color: TColor.primaryColor1,
+                              width: 1.5,
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -91,6 +102,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                           Expanded(
                             flex: 5,
                             child: TextFormField(
+                              cursorColor: TColor.primaryColor1.withOpacity(0.7),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter the code';
@@ -98,9 +110,12 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                                 return null;
                               },
                               decoration: InputDecoration(
-                                hintText: 'Enter Code',
-                                hintStyle: TextStyle(
-                                  color: TColor.primaryColor1.withOpacity(0.3),
+                                label: Text(
+                                  'Enter Code',
+                                  style: TextStyle(
+                                    color: TColor.primaryColor1.withOpacity(0.5),
+                                    fontFamily: 'Poppins',
+                                  ),
                                 ),
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide(
@@ -111,6 +126,13 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
                                     color: TColor.primaryColor1.withOpacity(0.3),
+                                  ),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                focusedBorder: OutlineInputBorder( // Border when clicking
+                                  borderSide: BorderSide(
+                                    color: TColor.primaryColor1,
+                                    width: 1.5,
                                   ),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
@@ -135,7 +157,8 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 13,
+                                  fontSize: 11.5,
+                                  fontFamily: 'Poppins',
                                 ),
                               ),
                             ),
@@ -177,6 +200,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.white,
+                              fontFamily: 'Poppins',
                             ),
                           ),
                         ),
@@ -193,14 +217,29 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                             'Still remember the password?  ',
                             style: TextStyle(
                               color: TColor.primaryColor1.withOpacity(0.6),
+                              fontFamily: 'Poppins',
+                              fontStyle: FontStyle.italic,
                             ),
                           ),
                           GestureDetector(
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (e) => const SignInScreen(),
+                                PageRouteBuilder(
+                                  transitionDuration: Duration(milliseconds: 300),
+                                  pageBuilder: (context, animation, secondaryAnimation) => const SignInScreen(),
+                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                    const begin = Offset(-1.0, 0.0); // Start from right
+                                    const end = Offset.zero; // Move to normal position
+                                    const curve = Curves.easeInOut;
+
+                                    var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+                                    return SlideTransition(
+                                      position: animation.drive(tween),
+                                      child: child,
+                                    );
+                                  },
                                 ),
                               );
                             },
@@ -210,6 +249,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: TColor.primaryColor1,
+                                fontFamily: 'Poppins',
                               ),
                             ),
                           ),

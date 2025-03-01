@@ -48,6 +48,152 @@ class _SiteListState extends State<SiteList> {
 
   // Search query state
   String searchQuery = "";
+  int unreadNotifications = 3;
+
+  void _showContextMenu(BuildContext context, Map<String, String> site, int index) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Text(
+                site["title"] ?? "Site Options",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: TColor.primaryColor1,
+                  fontFamily: "Poppins",
+                ),
+              ),
+              SizedBox(height: 10),
+              ListTile(
+                leading: Icon(Icons.edit, color: TColor.primaryColor1),
+                title: Text(
+                  'Edit Site',
+                  style: TextStyle(
+                    fontFamily: "Poppins",
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => Padding(
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                      ),
+                      child: AddFarmModal(
+                        initialName: site["title"],
+                        initialDescription: site["description"],
+                        initialImagePath: site["img"],
+                        onSave: (name, description, image) {
+                          setState(() {
+                            siteData[index] = {
+                              "title": name,
+                              "description": description,
+                              "img": image?.path ?? site["img"]!,
+                            };
+                          });
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.delete, color: Colors.red),
+                title: Text(
+                  'Delete Site',
+                  style: TextStyle(
+                    fontFamily: "Poppins",
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        backgroundColor: Colors.white,
+                        title: Text(
+                          'Delete Site',
+                          style: TextStyle(
+                            fontFamily: "Poppins",
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        content: Text(
+                          'Are you sure you want to delete this site?',
+                          style: TextStyle(
+                            fontFamily: "Poppins",
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                color: TColor.primaryColor1,
+                                fontFamily: "Poppins",
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          TextButton(
+                            child: Text(
+                              'Delete',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontFamily: "Poppins",
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                siteData.removeAt(index);
+                              });
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+              SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,16 +221,31 @@ class _SiteListState extends State<SiteList> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      SizedBox(width: 6,),
                       Text(
                         "Your Site",
                         style: TextStyle(
                           color: TColor.primaryColor1,
                           fontSize: 24,
                           fontWeight: FontWeight.w700,
+                          fontFamily: 'Inter',
                         ),
                       ),
                       const Spacer(),
-                      IconButton(
+                      TextButton.icon(
+                        icon: Icon(
+                          Icons.add,
+                          color: TColor.primaryColor1,
+                          size: 20,
+                        ),
+                        label: Text(
+                          'Add Site',
+                          style: TextStyle(
+                            color: TColor.primaryColor1,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: "Inter",
+                          ),
+                        ),
                         onPressed: () {
                           showModalBottomSheet(
                             context: context,
@@ -104,27 +265,56 @@ class _SiteListState extends State<SiteList> {
                             ),
                           );
                         },
-                        icon: Icon(
-                          Icons.add,
-                          color: TColor.primaryColor1,
-                          size: 26,//
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.symmetric(horizontal: 14), // Add some padding
                         ),
                       ),
-                      IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const NotificationView(),
+                      Stack(
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const NotificationView(),
+                                ),
+                              );
+                            },
+                            icon: Icon(
+                              Icons.notifications_none_sharp,
+                              size: 28,
+                              color: TColor.primaryColor1,
                             ),
-                          );
-                        },
-                        icon: Image.asset(
-                          "assets/images/notification_active.png",
-                          width: 20,
-                          height: 20,
-                          fit: BoxFit.fitHeight,
-                        ),
+                          ),
+
+                          // Show badge only if there are unread notifications
+                          if (unreadNotifications > 0)
+                            Positioned(
+                              right: 5, // Position on the top-right corner
+                              top: 5,
+                              child: Container(
+                                padding: EdgeInsets.all(5), // Adjust padding for better fit
+                                decoration: BoxDecoration(
+                                  color: Colors.red, // Badge background color
+                                  shape: BoxShape.circle, // Circular shape
+                                ),
+                                constraints: BoxConstraints(
+                                  minWidth: 8, // Minimum size of the badge
+                                  minHeight: 8,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    unreadNotifications.toString(), // Display unread count
+                                    style: TextStyle(
+                                      color: Colors.white, // Text color
+                                      fontSize: 12, // Adjust text size
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ],
                   ),
@@ -136,7 +326,9 @@ class _SiteListState extends State<SiteList> {
                       decoration: InputDecoration(
                         hintText: 'Enter Plant Name',
                         hintStyle: TextStyle(
-                          color: TColor.primaryColor1.withOpacity(0.6),
+                          fontSize: 14,
+                          color: Colors.grey.withOpacity(0.70),
+                          fontFamily: "Poppins",
                         ),
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
@@ -144,41 +336,48 @@ class _SiteListState extends State<SiteList> {
                         contentPadding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
                         prefixIcon: Icon(
                           Icons.search,
-                          color: TColor.primaryColor1.withOpacity(.8),
+                          color: Colors.grey.withOpacity(0.85),
                         ),
-                        suffixIcon: Icon(
-                          Icons.mic,
-                          color: TColor.primaryColor1.withOpacity(.9),
-                        ),
+                        // suffixIcon: Icon(
+                        //   Icons.arrow,
+                        //   color: TColor.primaryColor1.withOpacity(.9),
+                        // ),
                       ),
                     ),
                     decoration: BoxDecoration(
-                      color: TColor.primaryColor1.withOpacity(.1),
-                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.grey.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                 ],
               ),
             ),
           ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                final site = filteredData[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-                  child: CardHorizontal(
-                    title: site["title"] ?? "Unknown Site",
-                    description: site["description"] ?? "",
-                    img: site["img"] ?? "https://via.placeholder.com/200",
-                    tap: () {
-                      print("Tapped on ${site["title"]}");
-                      // Navigate to a detailed page or perform an action
-                    },
-                  ),
-                );
-              },
-              childCount: filteredData.length,
+          SliverPadding(
+            padding: const EdgeInsets.only(bottom: 10.0), // Add bottom padding
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                  final site = filteredData[index];
+                  return GestureDetector(
+                    onLongPress: () => _showContextMenu(context, site, index),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
+                      child: CardHorizontal(
+                        title: site["title"] ?? "Unknown Site",
+                        description: site["description"] ?? "",
+                        img: site["img"] ?? "https://via.placeholder.com/200",
+                        tap: () {
+                          print("Tapped on ${site["title"]}");
+                          // Your existing tap handler
+                        },
+                        timestamp: DateTime.now(),
+                      ),
+                    ),
+                  );
+                },
+                childCount: filteredData.length,
+              ),
             ),
           ),
         ],

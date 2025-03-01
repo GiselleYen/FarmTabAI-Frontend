@@ -28,13 +28,14 @@ class WelcomeScreen extends StatelessWidget {
                         TextSpan(
                             text: 'Welcome FarmTab AI\n',
                             style: TextStyle(
-                              fontSize: 44.0,
+                              fontSize: 50.0,
                               fontWeight: FontWeight.w600,
+                              fontFamily: 'Inter',
                               shadows: [
                                 Shadow(
-                                  offset: Offset(1.5, 1.5), // Adjust the shadow offset
-                                  blurRadius: 3.0,           // Adjust the blur radius
-                                  color: TColor.primaryColor1.withOpacity(0.5), // Shadow color
+                                  offset: Offset(1.6, 1.6),
+                                  blurRadius: 3.0,
+                                  color: TColor.primaryColor1.withOpacity(0.4),
                                 ),
                               ],
                             )
@@ -43,14 +44,13 @@ class WelcomeScreen extends StatelessWidget {
                             text:
                             '\nDaily care to keep your plants healthy and thriving',
                             style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 18,
                               fontFamily: 'Poppins',
                               shadows: [
                                 Shadow(
-                                  offset: Offset(1.5, 2.0), // Adjust the shadow offset
-                                  blurRadius: 3.0,           // Adjust the blur radius
-                                  color: TColor.primaryColor1.withOpacity(0.5), // Shadow color
+                                  offset: Offset(1.5, 2.0),
+                                  blurRadius: 3.2,
+                                  color: TColor.primaryColor1.withOpacity(0.4),
                                 ),
                               ],
                             ))

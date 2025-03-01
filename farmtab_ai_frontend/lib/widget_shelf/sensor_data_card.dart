@@ -77,3 +77,14 @@ class SensorCard extends StatelessWidget {
     );
   }
 }
+
+class ColorUtils {
+  static Color getColorFromString(String colorStr) {
+    switch (colorStr) {
+      case 'red': return Colors.red;
+      case 'green': return Colors.green;
+      case 'grey': return Colors.grey;
+      default: return Colors.blue;
+    }
+  }
+}

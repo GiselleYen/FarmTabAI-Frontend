@@ -52,7 +52,8 @@ class RoundButton extends StatelessWidget {
             style: TextStyle(
                 color: TColor.white,
                 fontSize: fontSize,
-                fontWeight: fontWeight))
+                fontWeight: fontWeight,
+              fontFamily: 'Inter',))
             : ShaderMask(
           blendMode: BlendMode.srcIn,
           shaderCallback: (bounds) {
@@ -67,7 +68,8 @@ class RoundButton extends StatelessWidget {
               style: TextStyle(
                   color:  TColor.primaryColor1,
                   fontSize: fontSize,
-                  fontWeight: fontWeight)),
+                  fontWeight: fontWeight,
+              )),
         ),
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:farmtab_ai_frontend/login_register/otp.dart';
+import 'package:farmtab_ai_frontend/login_register/personal_data_screen.dart';
 import 'package:flutter/material.dart';
 import 'signin_screen.dart';
 import 'package:farmtab_ai_frontend/widget/custom_welcome_scaffold.dart';
@@ -48,8 +49,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       Text(
                         "Let's Started!",
                         style: TextStyle(
-                          fontSize: 30.0,
-                          fontWeight: FontWeight.w900,
+                          fontSize: 26.0,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Poppins',
                           color: TColor.primaryColor1,
                         ),
                       ),
@@ -58,6 +60,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       // full name
                       TextFormField(
+                        cursorColor: TColor.primaryColor1.withOpacity(0.7),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Full name';
@@ -69,11 +72,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               'Full Name',
                               style: TextStyle(
                                 color: TColor.primaryColor1.withOpacity(0.7),
+                                fontFamily: 'Poppins',
                               ),
                           ),
                           hintText: 'Enter Full Name',
                           hintStyle: TextStyle(
                             color: TColor.primaryColor1.withOpacity(0.3),
+                            fontFamily: 'Poppins',
                           ),
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
@@ -87,6 +92,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
+                          focusedBorder: OutlineInputBorder( // Border when clicking
+                            borderSide: BorderSide(
+                              color: TColor.primaryColor1,
+                              width: 1.5,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                       ),
                       const SizedBox(
@@ -94,6 +106,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       // email
                       TextFormField(
+                        cursorColor: TColor.primaryColor1.withOpacity(0.7),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Email';
@@ -105,6 +118,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               'Email',
                               style: TextStyle(
                                 color: TColor.primaryColor1.withOpacity(0.7),
+                                fontFamily: 'Poppins',
                               ),
                           ),
                           hintText: 'Enter Email',
@@ -123,6 +137,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
+                          focusedBorder: OutlineInputBorder( // Border when clicking
+                            borderSide: BorderSide(
+                              color: TColor.primaryColor1,
+                              width: 1.5,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                       ),
                       const SizedBox(
@@ -130,6 +151,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       // password
                       TextFormField(
+                        cursorColor: TColor.primaryColor1.withOpacity(0.7),
                         obscureText: true,
                         obscuringCharacter: '*',
                         validator: (value) {
@@ -143,11 +165,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               'Password',
                             style: TextStyle(
                               color: TColor.primaryColor1.withOpacity(0.7),
+                              fontFamily: 'Poppins',
                             ),
                           ),
                           hintText: 'Enter Password',
                           hintStyle: TextStyle(
                             color: TColor.primaryColor1.withOpacity(0.3),
+                            fontFamily: 'Poppins',
                           ),
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
@@ -161,6 +185,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
+                          focusedBorder: OutlineInputBorder( // Border when clicking
+                            borderSide: BorderSide(
+                              color: TColor.primaryColor1,
+                              width: 1.5,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                       ),
                       const SizedBox(
@@ -168,7 +199,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       // i agree to the processing
                       Container(
-                        alignment: Alignment.centerLeft, // Aligns the entire content to the left
+                        alignment: Alignment.centerLeft,
                         margin: EdgeInsets.only(right: 8.0), // Adds a left margin for positioning
                         child: Row(
                           mainAxisSize: MainAxisSize.min, // Ensures the row fits its content
@@ -181,7 +212,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 });
                               },
                               activeColor: TColor.primaryColor1,
-                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, // Reduces the tap area size
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              visualDensity: VisualDensity(horizontal: -4, vertical: -4),
+                            ),
+                            SizedBox(
+                              width: 5,
                             ),
                             Flexible(
                               child: RichText(
@@ -190,16 +225,44 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     TextSpan(
                                       text: 'I agree to the processing of ',
                                       style: TextStyle(
-                                        fontSize: 14.0,
+                                        fontSize: 12.5,
                                         color: TColor.primaryColor1.withOpacity(0.6),
+                                        fontFamily: 'Poppins',
                                       ),
                                     ),
-                                    TextSpan(
-                                      text: 'Personal data',
-                                      style: TextStyle(
-                                        fontSize: 14.0,
-                                        fontWeight: FontWeight.bold,
-                                        color: TColor.primaryColor1,
+                                    WidgetSpan( // Make "Personal data" clickable
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            PageRouteBuilder(
+                                              transitionDuration: Duration(milliseconds: 300), // Animation duration
+                                              pageBuilder: (context, animation, secondaryAnimation) => PersonalDataScreen(),
+                                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                                const begin = Offset(1.0, 0.0); // Right to left transition
+                                                const end = Offset.zero;
+                                                const curve = Curves.easeInOut;
+
+                                                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+                                                return SlideTransition(
+                                                  position: animation.drive(tween),
+                                                  child: child,
+                                                );
+                                              },
+                                            ),
+                                          );
+                                        },
+                                        child: Text(
+                                          'Personal data',
+                                          style: TextStyle(
+                                            fontSize: 12.5,
+                                            fontWeight: FontWeight.bold,
+                                            color: TColor.primaryColor1,
+                                            fontFamily: 'Poppins',
+                                            decoration: TextDecoration.underline,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -245,6 +308,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.white,
+                              fontFamily: 'Poppins',
                             ),
                           ),
                         ),
@@ -271,6 +335,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               'Sign up with',
                               style: TextStyle(
                                 color: TColor.primaryColor1.withOpacity(0.6),
+                                fontFamily: 'Poppins',
+                                fontStyle: FontStyle.italic,
                               ),
                             ),
                           ),
@@ -306,14 +372,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             'Already have an account? ',
                             style: TextStyle(
                               color: TColor.primaryColor1.withOpacity(0.6),
+                              fontFamily: 'Poppins',
+                              fontStyle: FontStyle.italic,
                             ),
+                          ),
+                          SizedBox(
+                            width: 6,
                           ),
                           GestureDetector(
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (e) => const SignInScreen(),
+                                PageRouteBuilder(
+                                  transitionDuration: Duration(milliseconds: 300), // Animation duration
+                                  pageBuilder: (context, animation, secondaryAnimation) => const SignInScreen(),
+                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                    const begin = Offset(1.0, 0.0); // Start from left
+                                    const end = Offset.zero; // Move to normal position
+                                    const curve = Curves.easeInOut;
+
+                                    var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+                                    return SlideTransition(
+                                      position: animation.drive(tween),
+                                      child: child,
+                                    );
+                                  },
                                 ),
                               );
                             },
@@ -323,6 +407,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: TColor.primaryColor1,
+                                fontFamily: 'Poppins',
                               ),
                             ),
                           ),

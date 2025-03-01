@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import '../theme/color_extension.dart';
 
@@ -28,17 +30,9 @@ class _ChatPageState extends State<ChatPage> {
       isUser: false,
       timestamp: DateTime.now().subtract(Duration(minutes: 5)),
     ),
-    Message(
-      text: "I have a question about my sensor readings.",
-      isUser: true,
-      timestamp: DateTime.now().subtract(Duration(minutes: 4)),
-    ),
-    Message(
-      text: "Of course! I'd be happy to help. What specific readings are you concerned about?",
-      isUser: false,
-      timestamp: DateTime.now().subtract(Duration(minutes: 3)),
-    ),
   ];
+
+  bool _isLoading = false; // To show loading indicator
 
   @override
   void dispose() {
@@ -47,33 +41,67 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
   }
 
-  void _sendMessage() {
+  // Function to send user input to LLM via backend API
+  Future<void> _sendMessage() async {
     if (_messageController.text.trim().isEmpty) return;
 
+    String userInput = _messageController.text;
+
+    // Add user message to chat UI
     setState(() {
       _messages.add(Message(
-        text: _messageController.text,
+        text: userInput,
         isUser: true,
         timestamp: DateTime.now(),
       ));
-
-      // Add a mock response
-      Future.delayed(Duration(seconds: 1), () {
-        if (mounted) {
-          setState(() {
-            _messages.add(Message(
-              text: "Thank you for your message. I'll look into that for you.",
-              isUser: false,
-              timestamp: DateTime.now(),
-            ));
-            _scrollToBottom();
-          });
-        }
-      });
+      _isLoading = true; // Show loading indicator
     });
 
     _messageController.clear();
     _scrollToBottom();
+
+    try {
+      // Call the API
+      final response = await http.post(
+        Uri.parse("http://43.217.51.84:5000/generate"), // Replace with your backend URL
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"prompt": userInput}),
+      );
+
+      if (response.statusCode == 200) {
+        // Parse the AI response
+        String aiResponse = jsonDecode(response.body)["response"];
+
+        setState(() {
+          _messages.add(Message(
+            text: aiResponse,
+            isUser: false,
+            timestamp: DateTime.now(),
+          ));
+        });
+      } else {
+        setState(() {
+          _messages.add(Message(
+            text: "Error: Unable to get a response. Please try again.",
+            isUser: false,
+            timestamp: DateTime.now(),
+          ));
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _messages.add(Message(
+          text: "Error: Network issue. Please check your connection.",
+          isUser: false,
+          timestamp: DateTime.now(),
+        ));
+      });
+    } finally {
+      setState(() {
+        _isLoading = false; // Hide loading indicator
+      });
+      _scrollToBottom();
+    }
   }
 
   void _scrollToBottom() {
@@ -106,8 +134,18 @@ class _ChatPageState extends State<ChatPage> {
             child: ListView.builder(
               controller: _scrollController,
               padding: EdgeInsets.all(16),
-              itemCount: _messages.length,
+              itemCount: _messages.length + (_isLoading ? 1 : 0), // Add loader if active
               itemBuilder: (context, index) {
+                if (_isLoading && index == _messages.length) {
+                  return Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
                 final message = _messages[index];
                 return Padding(
                   padding: EdgeInsets.only(bottom: 16),
@@ -218,14 +256,14 @@ class _ChatPageState extends State<ChatPage> {
                         borderRadius: BorderRadius.circular(18),
                         borderSide: BorderSide(
                           color: TColor.primaryColor1,
-                          width: 2, // Border width
+                          width: 2,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                         borderSide: BorderSide(
-                          color: TColor.primaryColor1, // Border color when not focused
-                          width: 1, // Border width
+                          color: TColor.primaryColor1,
+                          width: 1,
                         ),
                       ),
                       contentPadding: EdgeInsets.symmetric(

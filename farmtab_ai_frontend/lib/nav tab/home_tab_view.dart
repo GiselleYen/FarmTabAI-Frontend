@@ -1,6 +1,6 @@
 import 'dart:io' show Platform;
 import 'package:farmtab_ai_frontend/site/SiteList.dart';
-import 'package:farmtab_ai_frontend/site/site.dart';
+import 'package:farmtab_ai_frontend/site/favourite_site.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 import 'package:farmtab_ai_frontend/widget/tab_button.dart';
 import 'package:flutter/material.dart';
@@ -97,7 +97,7 @@ class _HomeTabViewState extends State<HomeTabView> {
                     isActive: selectTab == 2,
                     onTap: () {
                       selectTab = 2;
-                       currentTab = const SitePage();
+                       currentTab = const FavoriteShelfPage();
                       if (mounted) {
                         setState(() {});
                       }

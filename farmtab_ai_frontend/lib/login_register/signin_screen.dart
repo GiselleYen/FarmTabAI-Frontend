@@ -48,8 +48,9 @@ class _SignInScreenState extends State<SignInScreen> {
                       Text(
                         'Welcome Back',
                         style: TextStyle(
-                          fontSize: 30.0,
-                          fontWeight: FontWeight.w900,
+                          fontSize: 26.0,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Poppins',
                           color: TColor.primaryColor1,
                         ),
                       ),
@@ -57,6 +58,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         height: 40.0,
                       ),
                       TextFormField(
+                        cursorColor: TColor.primaryColor1.withOpacity(0.7),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Email';
@@ -68,21 +70,30 @@ class _SignInScreenState extends State<SignInScreen> {
                               'Email',
                               style: TextStyle(
                                 color: TColor.primaryColor1.withOpacity(0.7),
+                                fontFamily: 'Poppins',
                             ),
                           ),
                           hintText: 'Enter Email',
                           hintStyle: TextStyle(
                             color: TColor.primaryColor1.withOpacity(0.3),
+                            fontFamily: 'Poppins',
                           ),
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: TColor.primaryColor1, // Default border color
+                              color: TColor.primaryColor1,
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: TColor.primaryColor1.withOpacity(0.3), // Default border color
+                              color: TColor.primaryColor1.withOpacity(0.3),
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          focusedBorder: OutlineInputBorder( // Border when clicking
+                            borderSide: BorderSide(
+                              color: TColor.primaryColor1,
+                              width: 1.5,
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -92,6 +103,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         height: 25.0,
                       ),
                       TextFormField(
+                        cursorColor: TColor.primaryColor1.withOpacity(0.7),
                         obscureText: true,
                         obscuringCharacter: '*',
                         validator: (value) {
@@ -105,11 +117,13 @@ class _SignInScreenState extends State<SignInScreen> {
                               'Password',
                               style: TextStyle(
                                 color: TColor.primaryColor1.withOpacity(0.7),
+                                fontFamily: 'Poppins',
                               ),
                           ),
                           hintText: 'Enter Password',
-                          hintStyle: const TextStyle(
-                            color: Colors.black26,
+                          hintStyle: TextStyle(
+                            color: TColor.primaryColor1.withOpacity(0.3),
+                            fontFamily: 'Poppins',
                           ),
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
@@ -123,6 +137,13 @@ class _SignInScreenState extends State<SignInScreen> {
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
+                          focusedBorder: OutlineInputBorder( // Border when clicking
+                            borderSide: BorderSide(
+                              color: TColor.primaryColor1,
+                              width: 1.5,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                       ),
                       const SizedBox(
@@ -132,6 +153,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Checkbox(
                                 value: rememberPassword,
@@ -141,11 +163,13 @@ class _SignInScreenState extends State<SignInScreen> {
                                   });
                                 },
                                 activeColor: TColor.primaryColor1,
+                                visualDensity: VisualDensity(horizontal: -4, vertical: -4),
                               ),
                               const Text(
                                 'Remember me',
                                 style: TextStyle(
                                   color: Colors.black45,
+                                  fontFamily: 'Poppins',
                                 ),
                               ),
                             ],
@@ -154,8 +178,21 @@ class _SignInScreenState extends State<SignInScreen> {
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (context) => ForgetPassword(),
+                                PageRouteBuilder(
+                                  transitionDuration: Duration(milliseconds: 300), // Animation duration
+                                  pageBuilder: (context, animation, secondaryAnimation) => ForgetPassword(),
+                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                    const begin = Offset(1.0, 0.0); // Start from right (1.0 on X-axis)
+                                    const end = Offset.zero; // Move to normal position
+                                    const curve = Curves.easeInOut;
+
+                                    var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+                                    return SlideTransition(
+                                      position: animation.drive(tween),
+                                      child: child,
+                                    );
+                                  },
                                 ),
                               );
                             },
@@ -164,6 +201,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: TColor.primaryColor1,
+                                fontFamily: 'Inter',
                               ),
                             ),
                           ),
@@ -203,6 +241,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.white,
+                              fontFamily: 'Poppins',
                             ),
                           ),
                         ),
@@ -228,6 +267,8 @@ class _SignInScreenState extends State<SignInScreen> {
                               'Log in with',
                               style: TextStyle(
                                 color: TColor.primaryColor1.withOpacity(0.6),
+                                fontFamily: 'Poppins',
+                                fontStyle: FontStyle.italic,
                               ),
                             ),
                           ),
@@ -262,14 +303,32 @@ class _SignInScreenState extends State<SignInScreen> {
                             'Don\'t have an account? ',
                             style: TextStyle(
                               color: TColor.primaryColor1.withOpacity(0.6),
+                              fontFamily: 'Poppins',
+                              fontStyle: FontStyle.italic,
                             ),
+                          ),
+                          SizedBox(
+                            width: 6,
                           ),
                           GestureDetector(
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (e) => const SignUpScreen(),
+                                PageRouteBuilder(
+                                  transitionDuration: Duration(milliseconds: 300), // Animation duration
+                                  pageBuilder: (context, animation, secondaryAnimation) => const SignUpScreen(),
+                                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                    const begin = Offset(1.0, 0.0); // Start from left
+                                    const end = Offset.zero; // Move to normal position
+                                    const curve = Curves.easeInOut;
+
+                                    var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+                                    return SlideTransition(
+                                      position: animation.drive(tween),
+                                      child: child,
+                                    );
+                                  },
                                 ),
                               );
                             },
@@ -279,6 +338,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: TColor.primaryColor1,
+                                fontFamily: 'Poppins',
                               ),
                             ),
                           ),

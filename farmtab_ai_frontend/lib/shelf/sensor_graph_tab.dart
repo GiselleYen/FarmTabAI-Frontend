@@ -1,3 +1,4 @@
+import 'package:farmtab_ai_frontend/shelf/shelf_widget/data_graph.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
@@ -182,17 +183,41 @@ class _SensorGraphsTabState extends State<SensorGraphsTab> with SingleTickerProv
           child: TabBarView(
             controller: _graphTabController,
             children: [
-              _buildLineChart(
-                phData,
-                'pH Graph',
-                'pH Level',
-                TColor.primaryColor2,
+              SensorGraphWidget(
+                values: [6.8, 7.1, 7.2, 6.9, 6.7, 7.0, 7.3, 7.4],
+                startTime: DateTime.now().subtract(Duration(hours: 6 * 7)),
+                hoursInterval: 6,
+                title: 'pH Levels',
+                minY: 0,
+                maxY: 14,
+                referenceLineValue: 7,
+                referenceLineLabel: 'Neutral',
+                primaryColor: Colors.green,
+                secondaryColor: Colors.teal,
+                unit: '',
+                valueCategories: {
+                  'Acidic': [0.0, 6.9, Colors.red],
+                  'Neutral': [7.0, 7.0, Colors.grey],
+                  'Alkaline': [7.1, 14.0, Colors.blue],
+                },
               ),
-              _buildLineChart(
-                ecData,
-                'EC Graph',
-                'EC (mS/cm)',
-                TColor.primaryColor2,
+              SensorGraphWidget(
+                values: [1.2, 1.5, 1.8, 2.1, 2.3, 2.0, 1.9, 1.7],
+                startTime: DateTime.now().subtract(Duration(hours: 6 * 7)),
+                hoursInterval: 6,
+                title: 'EC Value',
+                minY: 0,
+                maxY: 5,
+                referenceLineValue: 2.0,
+                referenceLineLabel: 'Optimal',
+                primaryColor: Colors.green,
+                secondaryColor: Colors.amber,
+                unit: ' mS/cm',
+                valueCategories: {
+                  'Low': [0.0, 1.4, Colors.purple],
+                  'Ideal': [1.5, 2.5, Colors.green],
+                  'High': [2.6, 5.0, Colors.orange],
+                },
               ),
               _buildLineChart(
                 tdsData,
