@@ -1,10 +1,12 @@
 import 'package:farmtab_ai_frontend/login_register/otp.dart';
 import 'package:farmtab_ai_frontend/login_register/personal_data_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'signin_screen.dart';
 import 'package:farmtab_ai_frontend/widget/custom_welcome_scaffold.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
+import '../providers/auth_provider.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -16,8 +18,57 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formSignupKey = GlobalKey<FormState>();
   bool agreePersonalData = true;
+
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    void _signup() async {
+      if (_formSignupKey.currentState!.validate()) {
+        if (!agreePersonalData) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Please agree to the processing of personal data'),
+            ),
+          );
+          return;
+        }
+
+        // Call the signup method on your AuthProvider
+        final success = await Provider.of<AuthProvider>(context, listen: false)
+            .register(
+            _emailController.text.trim(),
+            _passwordController.text,
+            _nameController.text.trim(),
+        );
+
+        if (success) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => OTP_Page(email: _emailController.text.trim())),
+          );
+        } else if (authProvider.error != null) {
+          // Show error message from provider
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authProvider.error!),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
     return CustomWelcomeScaffold(
       child: Column(
         children: [
@@ -60,6 +111,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       // full name
                       TextFormField(
+                        controller: _nameController,
                         cursorColor: TColor.primaryColor1.withOpacity(0.7),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -106,6 +158,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       // email
                       TextFormField(
+                        controller: _emailController,
                         cursorColor: TColor.primaryColor1.withOpacity(0.7),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -152,6 +205,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       // password
                       TextFormField(
                         cursorColor: TColor.primaryColor1.withOpacity(0.7),
+                        controller: _passwordController,
                         obscureText: true,
                         obscuringCharacter: '*',
                         validator: (value) {
@@ -279,32 +333,39 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
-                            if (_formSignupKey.currentState!.validate() &&
-                                agreePersonalData) {
-                              // ScaffoldMessenger.of(context).showSnackBar(
-                              //   const SnackBar(
-                              //     content: Text('Processing Data'),
-                              //   ),
-                              // );
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => OTP_Page()),
-                              );
-                            } else if (!agreePersonalData) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text(
-                                        'Please agree to the processing of personal data')),
-                              );
-                            }
-                          },
+                          // onPressed: () {
+                          //   if (_formSignupKey.currentState!.validate() &&
+                          //       agreePersonalData) {
+                          //     // ScaffoldMessenger.of(context).showSnackBar(
+                          //     //   const SnackBar(
+                          //     //     content: Text('Processing Data'),
+                          //     //   ),
+                          //     // );
+                          //     Navigator.push(
+                          //       context,
+                          //       MaterialPageRoute(builder: (context) => OTP_Page()),
+                          //     );
+                          //   } else if (!agreePersonalData) {
+                          //     ScaffoldMessenger.of(context).showSnackBar(
+                          //       const SnackBar(
+                          //           content: Text(
+                          //               'Please agree to the processing of personal data')),
+                          //     );
+                          //   }
+                          // },
+                          onPressed: authProvider.isLoading
+                              ? null
+                              : _signup,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: TColor.primaryColor1,
                             minimumSize: Size(double.infinity, 50),
                           ),
-                          child: const Text(
-                              'Sign up',
+                          child: authProvider.isLoading
+                              ? const CircularProgressIndicator(
+                            color: Colors.white,
+                          )
+                              : const Text(
+                            'Sign up',
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.white,

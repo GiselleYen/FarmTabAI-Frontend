@@ -4,9 +4,12 @@ import 'package:farmtab_ai_frontend/widget/round_button.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import '../services/user_service.dart';
 import '../widget/shelf_carousel.dart';
 import '../widget/shelf_row.dart';
-import 'finished_workout_view.dart';
 import 'notification_view.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,6 +20,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final UserService _userService = UserService();
+  String username = "User";
+  bool isLoading = true;
 
   List<int> showingTooltipOnSpots = [21];
   List<FlSpot> get allSpots => const [
@@ -81,8 +87,36 @@ class _HomePageState extends State<HomePage> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    fetchUserProfile();
+  }
+
+  Future<void> fetchUserProfile() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      // Get user profile from service
+      final userData = await _userService.getUserProfile();
+
+      setState(() {
+        username = userData['username'] ?? "User";
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching user profile: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     var media = MediaQuery.of(context).size;
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     final lineBarsData = [
       LineChartBarData(
@@ -122,8 +156,10 @@ class _HomePageState extends State<HomePage> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "Hi Abby,",
+                        isLoading
+                            ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(TColor.primaryColor1),))
+                            : Text(
+                          "Hi $username,",
                           style: TextStyle(
                             color: TColor.primaryColor1,
                             fontSize: 24,
@@ -132,7 +168,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         Text(
-                          "10 November 2024",
+                          DateFormat('dd MMMM yyyy').format(DateTime.now()), // Formats the date
                           style: TextStyle(
                             color: TColor.primaryColor1,
                             fontSize: 20,
@@ -230,7 +266,7 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                         actions: [
                                           TextButton(
-                                            onPressed: () => Navigator.pop(context), // Close dialog
+                                            onPressed: () => Navigator.pop(context),
                                             child: Text(
                                               "Cancel",
                                               style: TextStyle(
@@ -240,12 +276,13 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                           ),
                                           TextButton(
-                                            onPressed: () {
-                                              Navigator.pop(context); // Close dialog
-                                              Navigator.push(
+                                            onPressed: () async {
+                                              Navigator.pop(context);
+                                              await authProvider.logout();
+                                              Navigator.pushAndRemoveUntil(
                                                 context,
-                                                MaterialPageRoute(builder: (context) => WelcomeScreen(),
-                                                ),
+                                                MaterialPageRoute(builder: (context) => WelcomeScreen()),
+                                                    (route) => false, // This removes all previous routes from the stack
                                               );
                                             },
                                             child: Text(

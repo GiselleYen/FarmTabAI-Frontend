@@ -4,6 +4,8 @@ import 'package:farmtab_ai_frontend/widget/custom_welcome_scaffold.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:farmtab_ai_frontend/homepage/home_page.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import 'forget_password.dart';
 import 'signup_screen.dart';
 
@@ -16,9 +18,50 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen> {
   final _formSignInKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
   bool rememberPassword = true;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    void _login() async {
+      if (_formSignInKey.currentState!.validate()) {
+        if (!rememberPassword) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Please agree to the processing of personal data'),
+            ),
+          );
+          return;
+        }
+
+        final success = await Provider.of<AuthProvider>(context, listen: false)
+            .login(_emailController.text.trim(), _passwordController.text);
+
+        if (success) {
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const HomeTabView())
+          );
+        } else if (authProvider.error != null) {
+          // Show error message from provider
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authProvider.error!),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
     return CustomWelcomeScaffold(
       child: Column(
         children: [
@@ -58,6 +101,8 @@ class _SignInScreenState extends State<SignInScreen> {
                         height: 40.0,
                       ),
                       TextFormField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
                         cursorColor: TColor.primaryColor1.withOpacity(0.7),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -103,6 +148,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         height: 25.0,
                       ),
                       TextFormField(
+                        controller: _passwordController,
                         cursorColor: TColor.primaryColor1.withOpacity(0.7),
                         obscureText: true,
                         obscuringCharacter: '*',
@@ -213,30 +259,18 @@ class _SignInScreenState extends State<SignInScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
-                            if (_formSignInKey.currentState!.validate() && rememberPassword) {
-                              // ScaffoldMessenger.of(context).showSnackBar(
-                              //   const SnackBar(
-                              //     content: Text('Processing Data'),
-                              //   ),
-                              // );
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => HomeTabView()),
-                              );
-                            } else if (!rememberPassword) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Please agree to the processing of personal data'),
-                                ),
-                              );
-                            }
-                          },
+                          onPressed: authProvider.isLoading
+                              ? null
+                              : _login,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: TColor.primaryColor1,
                             minimumSize: const Size(double.infinity, 50),
                           ),
-                          child: const Text(
+                          child: authProvider.isLoading
+                              ? const CircularProgressIndicator(
+                            color: Colors.white, // Ensures visibility
+                          )
+                              : const Text(
                             'Log in',
                             style: TextStyle(
                               fontSize: 16,

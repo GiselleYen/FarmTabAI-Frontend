@@ -3,14 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 
+import '../services/user_service.dart';
 import '../widget/profile_row.dart';
 
 class EditProfilePage extends StatefulWidget {
+
   @override
   _EditProfilePageState createState() => _EditProfilePageState();
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
+
+  final UserService _userService = UserService();
+  Map<String, dynamic>? _userProfile;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProfile();
+  }
+
   List accountArr = [
     {"image": "assets/images/p_personal.png", "name": "Name", "tag": "1"},
     {"image": "assets/images/p_achi.png", "name": "Email", "tag": "2"},
@@ -25,6 +38,35 @@ class _EditProfilePageState extends State<EditProfilePage> {
       "tag": "4"
     }
   ];
+
+  Future<void> _loadUserProfile() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final userProfile = await _userService.getUserProfile();
+      setState(() {
+        _userProfile = userProfile;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load profile: $e')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _updateProfileImage(String newImageUrl) {
+    setState(() {
+      if (_userProfile != null) {
+        _userProfile!['profile_image_url'] = newImageUrl;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

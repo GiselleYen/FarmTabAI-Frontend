@@ -17,21 +17,21 @@ class CustomInputDecoration {
       label: Text(
         label,
         style: TextStyle(
-          color: TColor.primaryColor1,
+          color: TColor.primaryColor1.withOpacity(0.7),
           fontFamily: 'Poppins',
         ),
       ),
       hintText: 'Enter $label',
       hintStyle: TextStyle(
-        color: TColor.gray,
+        color: TColor.primaryColor1.withOpacity(0.3),
         fontFamily: 'Poppins',
       ),
       border: OutlineInputBorder(
-        borderSide: BorderSide(color: TColor.primaryColor1),
+        borderSide: BorderSide(color: TColor.primaryColor1.withOpacity(0.3),),
         borderRadius: BorderRadius.circular(6),
       ),
       enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: TColor.primaryColor1),
+        borderSide: BorderSide(color: TColor.primaryColor1.withOpacity(0.3),),
         borderRadius: BorderRadius.circular(6),
       ),
       focusedBorder: OutlineInputBorder(
@@ -39,7 +39,7 @@ class CustomInputDecoration {
           color: TColor.primaryColor1,
           width: 1.5,
         ),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(10),
       ),
       prefixIcon: prefixIcon != null
           ? Icon(
