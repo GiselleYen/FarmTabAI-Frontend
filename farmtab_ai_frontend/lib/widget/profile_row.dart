@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 
 class ProfileRow extends StatelessWidget {
-  final String icon;
+  final IconData icon;
   final String title;
   final VoidCallback onPressed;
   const ProfileRow({super.key, required this.icon, required this.title, required this.onPressed });
@@ -16,8 +16,20 @@ class ProfileRow extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image.asset(icon,
-                height: 24, width: 24, fit: BoxFit.contain),
+            ShaderMask(
+              shaderCallback: (Rect bounds) {
+                return LinearGradient(
+                  colors: TColor.primaryG, // Define gradient colors
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ).createShader(bounds);
+              },
+              child: Icon(
+                icon,
+                size: 26,
+                color: Colors.white, // Must set color to white to apply the gradient
+              ),
+            ),
             const SizedBox(
               width: 20,
             ),
@@ -26,7 +38,8 @@ class ProfileRow extends StatelessWidget {
                 title,
                 style: TextStyle(
                   color: TColor.primaryColor1,
-                  fontSize: 14,
+                  fontSize: 16,
+                  fontFamily: "Poppins",
                 ),
               ),
             ),

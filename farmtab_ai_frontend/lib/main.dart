@@ -11,28 +11,16 @@ import 'login_register/onboarding_screen.dart';
 import 'login_register/welcome_screen.dart';
 
 void main() async{
-  // Add this line
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
-  // Load the dotenv file
   await dotenv.load(fileName: ".env");
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  // @override
-  // Widget build(BuildContext context) {
-  //   return MaterialApp(
-  //     title: 'FarmTab AI',
-  //     // home: OnboardingScreen(),
-  //     home: HomeTabView(),
-  //     // home: SiteList(),
-  //     // home: ShelfTabView(),
-  //     // home: DatabaseTestPage(),
-  //     debugShowCheckedModeBanner: false,
-  //   );
-  // }
+
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
@@ -41,10 +29,8 @@ class MyApp extends StatelessWidget {
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, _) {
           return MaterialApp(
+            navigatorKey: navigatorKey,
             title: 'FarmTab AI',
-            // theme: ThemeData(
-            //   primarySwatch: Colors.blue,
-            // ),
             home: authProvider.isLoading
                 ? const Scaffold(body: Center(child: CircularProgressIndicator()))
                 : authProvider.isLoggedIn

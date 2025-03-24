@@ -120,7 +120,7 @@ class DashboardView extends StatelessWidget {
                                 ),
                                 SensorDataItem(
                                   label: 'EC',
-                                  value: '0.05',
+                                  value: sensorData?.ec.toStringAsFixed(2) ?? '0.00',
                                   icon: Icons.electric_bolt,
                                   isIncreasing: false,
                                 ),
@@ -187,40 +187,43 @@ class DashboardView extends StatelessWidget {
               SensorCard(
                 icon: Icons.water_drop,
                 label: 'pH',
-                value: sensorData?.ph.toStringAsFixed(2) ?? '0.00',
-                status: sensorData?.phStatusText ?? 'No Data',
-                statusColor: sensorData != null
-                    ? ColorUtils.getColorFromString(sensorData!.phStatusColor)
-                    : Colors.grey,
+                value: sensorData?.ph?.toStringAsFixed(2) ?? '0.00',
+                status: sensorData?.phStatus?['text'] ?? 'No Data',
+                statusColor: sensorData != null ?
+                ColorUtils.getColorFromString(sensorData?.phStatus?['color'] ?? 'grey') :
+                Colors.grey,
               ),
+
               SensorCard(
-                icon: Icons.electric_bolt,
+                icon: Icons.electric_bolt, // or whatever icon you use for EC
                 label: 'EC',
-                value: sensorData?.ec.toStringAsFixed(2) ?? '0.00',
-                status: sensorData?.ecStatusText ?? 'No Data',
-                statusColor: Colors.grey,
+                value: sensorData?.ec.toString() ?? '0',
+                status: sensorData?.ecStatus['text'] ?? 'No Data',
+                statusColor: sensorData != null ?
+                ColorUtils.getColorFromString(sensorData?.ecStatus['color']) :
+                Colors.grey,
               ),
               SensorCard(
-                icon: Icons.opacity,
+                icon: Icons.opacity, // or maybe Icons.thermostat would be better for temperature
                 label: 'Temperature',
-                value: '27°C',
-                status: 'Normal',
-                statusColor: Colors.green,
+                value: sensorData?.temp.toString() ?? '0',
+                status: sensorData?.tempStatus['text'] ?? 'No Data',
+                statusColor: sensorData != null ? ColorUtils.getColorFromString(sensorData?.tempStatus['color']) : Colors.grey,
               ),
               SensorCard(
                 icon: Icons.grain,
                 label: 'ORP',
-                value: '650',
-                status: 'Too High',
-                statusColor: Colors.red,
+                value: sensorData?.orp.toString() ?? '0',
+                status: sensorData?.orpStatus['text'] ?? 'No Data',
+                statusColor: sensorData != null ? ColorUtils.getColorFromString(sensorData?.orpStatus['color']) : Colors.grey,
               ),
-              SensorCard(
-                icon: Icons.opacity,
-                label: 'TDS',
-                value: '500',
-                status: 'Normal',
-                statusColor: Colors.green,
-              ),
+              // SensorCard(
+              //   icon: Icons.opacity,
+              //   label: 'TDS',
+              //   value: '500',
+              //   status: 'Normal',
+              //   statusColor: Colors.green,
+              // ),
             ],
           ),
         ],

@@ -6,7 +6,9 @@ import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 import 'shelf_widget/add_edit_shelf_dialog.dart';
 
 class ShelfList extends StatefulWidget {
-  const ShelfList({super.key});
+  final int farmId;
+
+  const ShelfList({Key? key, required this.farmId}) : super(key: key);
 
   @override
   State<ShelfList> createState() => _ShelfListState();

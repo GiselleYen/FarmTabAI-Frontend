@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:farmtab_ai_frontend/widget/custom_welcome_scaffold.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:farmtab_ai_frontend/homepage/home_page.dart';
 import 'package:provider/provider.dart';
+import '../admin/admin_page.dart';
 import '../providers/auth_provider.dart';
 import 'forget_password.dart';
 import 'signup_screen.dart';
@@ -44,15 +44,23 @@ class _SignInScreenState extends State<SignInScreen> {
           return;
         }
 
+        final email = _emailController.text.trim();
+        final password = _passwordController.text;
+
         final success = await Provider.of<AuthProvider>(context, listen: false)
-            .login(_emailController.text.trim(), _passwordController.text);
+            .login(email, password);
 
         if (success) {
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => const HomeTabView())
-          );
+          if (email == 'admin@app.farmtab.my' && password == 'Farmtab@123') {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const AdminHomePage()),
+            );
+          } else {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const HomeTabView()),
+            );
+          }
         } else if (authProvider.error != null) {
-          // Show error message from provider
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(authProvider.error!),
@@ -62,6 +70,7 @@ class _SignInScreenState extends State<SignInScreen> {
         }
       }
     }
+
     return CustomWelcomeScaffold(
       child: Column(
         children: [

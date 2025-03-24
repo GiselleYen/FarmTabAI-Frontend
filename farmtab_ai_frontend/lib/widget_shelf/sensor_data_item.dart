@@ -19,7 +19,7 @@ class SensorDataItem extends StatelessWidget {
     return Row(
       children: [
         Icon(icon, size: 20, color: TColor.primaryColor1),
-        SizedBox(width: 6),
+        SizedBox(width: 4),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

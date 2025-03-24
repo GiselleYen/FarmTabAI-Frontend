@@ -6,8 +6,7 @@ import "package:flutter/material.dart";
 import "package:farmtab_ai_frontend/theme/color_extension.dart";
 
 import "../models/sensor_data.dart";
-import "../services/sensor_data_service.dart";
-// Import the new dashboard view
+import "../services/sensor_services.dart";
 import "dashboard_view.dart";
 
 class SensorDataDashboard extends StatefulWidget {
@@ -18,7 +17,7 @@ class SensorDataDashboard extends StatefulWidget {
 
 class _SensorDataStateDashbaord extends State<SensorDataDashboard> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final SensorDataService _dataService = SensorDataService();
+  final sensorService = SensorService();
   SensorData? _sensorData;
 
   late Timer _timer;
@@ -47,9 +46,12 @@ class _SensorDataStateDashbaord extends State<SensorDataDashboard> with SingleTi
         _isLoading = true;
         _error = null;
       });
-      final data = await _dataService.getLatestData();
+
+      final data = await sensorService.fetchLatestSensorData();
+
       setState(() {
-        _sensorData = data;
+        print(data);
+        _sensorData = SensorData.fromJson(data);
         _isLoading = false;
       });
     } catch (e) {

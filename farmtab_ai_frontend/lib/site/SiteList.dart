@@ -1,6 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
+import 'package:image_picker/image_picker.dart';
 import '../homepage/notification_view.dart';
+import '../models/farm_site.dart';
+import '../services/farmSite_service.dart';
+import '../shelf/shelf_list.dart';
 import '../widget/add_farm_modal.dart';
 import '../widget/card_horizontal.dart';
 
@@ -12,45 +17,80 @@ class SiteList extends StatefulWidget {
 }
 
 class _SiteListState extends State<SiteList> {
-  // Sample data for the cards
-  final List<Map<String, String>> siteData = [
-    {
-      "title": "Farm A",
-      "description": "A picturesque farm known for its organic produce and sustainable practices.",
-      "img": "assets/images/farmA.jpg"
-    },
-    {
-      "title": "Farm B",
-      "description": "Nestled in rolling hills, this farm specializes in hydroponic vegetables and herbs.",
-      "img": "assets/images/farmB.jpg"
-    },
-    {
-      "title": "Farm C",
-      "description": "An innovative farm focused on eco-friendly technologies and farm-to-table freshness.",
-      "img": "assets/images/farmC.jpg"
-    },
-    {
-      "title": "Farm D",
-      "description": "A picturesque farm known for its organic produce and sustainable practices.",
-      "img": "assets/images/farmA.jpg"
-    },
-    {
-      "title": "Farm E",
-      "description": "Nestled in rolling hills, this farm specializes in hydroponic vegetables and herbs.",
-      "img": "assets/images/farmB.jpg"
-    },
-    {
-      "title": "Farm F",
-      "description": "An innovative farm focused on eco-friendly technologies and farm-to-table freshness.",
-      "img": "assets/images/farmC.jpg"
-    },
-  ];
+  // API service instance
+  final FarmService _apiService = FarmService();
+
+  // Farms list
+  List<Farm> farms = [];
+  bool isLoading = true;
+  String? errorMessage;
 
   // Search query state
   String searchQuery = "";
   int unreadNotifications = 3;
 
-  void _showContextMenu(BuildContext context, Map<String, String> site, int index) {
+  @override
+  void initState() {
+    super.initState();
+    _loadFarms();
+  }
+
+  Future<void> _loadFarms() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    try {
+      final fetchedFarms = await _apiService.getFarms();
+      setState(() {
+        farms = fetchedFarms;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        errorMessage = "Failed to load farms: $e";
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _addFarm(String title, String description, XFile? image) async {
+    try {
+      File? imageFile = image != null ? File(image.path) : null;
+      await _apiService.createFarm(title, description, imageFile);
+      await _loadFarms(); // Reload farms
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error adding farm: $e')),
+      );
+    }
+  }
+
+  Future<void> _updateFarm(int id, String title, String description, XFile? image) async {
+    try {
+      File? imageFile = image != null ? File(image.path) : null;
+      await _apiService.updateFarm(id, title, description, imageFile);
+      await _loadFarms(); // Reload farms
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating farm: $e')),
+      );
+    }
+  }
+
+  Future<void> _deleteFarm(int id) async {
+    try {
+      await _apiService.deleteFarm(id);
+      await _loadFarms(); // Reload farms
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error deleting farm: $e')),
+      );
+    }
+  }
+
+  void _showContextMenu(BuildContext context, Farm farm) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -77,7 +117,7 @@ class _SiteListState extends State<SiteList> {
                 ),
               ),
               Text(
-                site["title"] ?? "Site Options",
+                farm.title,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -101,26 +141,21 @@ class _SiteListState extends State<SiteList> {
                     context: context,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
-                    builder: (context) => Padding(
-                      padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).viewInsets.bottom,
-                      ),
-                      child: AddFarmModal(
-                        initialName: site["title"],
-                        initialDescription: site["description"],
-                        initialImagePath: site["img"],
-                        onSave: (name, description, image) {
-                          setState(() {
-                            siteData[index] = {
-                              "title": name,
-                              "description": description,
-                              "img": image?.path ?? site["img"]!,
-                            };
-                          });
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ),
+                    builder: (context) =>
+                        Padding(
+                          padding: EdgeInsets.only(
+                            bottom: MediaQuery.of(context).viewInsets.bottom,
+                          ),
+                          child: AddFarmModal(
+                            initialName: farm.title,
+                            initialDescription: farm.description,
+                            initialImagePath: farm.imageUrl,
+                            onSave: (name, description, image) {
+                              _updateFarm(farm.id!, name, description, image);
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ),
                   );
                 },
               ),
@@ -175,9 +210,7 @@ class _SiteListState extends State<SiteList> {
                               ),
                             ),
                             onPressed: () {
-                              setState(() {
-                                siteData.removeAt(index);
-                              });
+                              _deleteFarm(farm.id!);
                               Navigator.pop(context);
                             },
                           ),
@@ -197,194 +230,192 @@ class _SiteListState extends State<SiteList> {
 
   @override
   Widget build(BuildContext context) {
-    // Filtered data based on the search query
-    final filteredData = siteData
-        .where((site) =>
-        site["title"]!.toLowerCase().contains(searchQuery.toLowerCase()))
+    // Filtered data based on search query
+    final filteredFarms = farms
+        .where((farm) => farm.title.toLowerCase().contains(searchQuery.toLowerCase()))
         .toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            leadingWidth: 0,
-            automaticallyImplyLeading: false,
-            toolbarHeight: 120,
-            title: Padding(
-              padding: const EdgeInsets.only(bottom: 12.0), // Add bottom padding
-              child: Column(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(130),
+        child: Container(
+          color: Colors.white,
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 4),
+          child: Column(
+            children: [
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(width: 6,),
-                      Text(
-                        "Your Site",
-                        style: TextStyle(
-                          color: TColor.primaryColor1,
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: 'Inter',
-                        ),
+                  SizedBox(width: 6),
+                  Text(
+                    "Your Site",
+                    style: TextStyle(
+                      color: TColor.primaryColor1,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'Inter',
+                    ),
+                  ),
+                  const Spacer(),
+                  TextButton.icon(
+                    icon: Icon(
+                      Icons.add,
+                      color: TColor.primaryColor1,
+                      size: 20,
+                    ),
+                    label: Text(
+                      'Add Site',
+                      style: TextStyle(
+                        color: TColor.primaryColor1,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: "Inter",
                       ),
-                      const Spacer(),
-                      TextButton.icon(
-                        icon: Icon(
-                          Icons.add,
-                          color: TColor.primaryColor1,
-                          size: 20,
-                        ),
-                        label: Text(
-                          'Add Site',
-                          style: TextStyle(
-                            color: TColor.primaryColor1,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: "Inter",
-                          ),
-                        ),
-                        onPressed: () {
-                          showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            builder: (context) => Padding(
+                    ),
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (context) =>
+                            Padding(
                               padding: EdgeInsets.only(
                                 bottom: MediaQuery.of(context).viewInsets.bottom,
                               ),
                               child: AddFarmModal(
                                 onSave: (name, description, image) {
-                                  // Handle the saved farm data here
-                                  print('Farm Name: $name');
-                                  print('Description: $description');
-                                  print('Image: ${image?.path}');
+                                  _addFarm(name, description, image);
                                 },
                               ),
                             ),
+                      );
+                    },
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 14),
+                    ),
+                  ),
+                  Stack(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const NotificationView(),
+                            ),
                           );
                         },
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.symmetric(horizontal: 14), // Add some padding
+                        icon: Icon(
+                          Icons.notifications_none_sharp,
+                          size: 28,
+                          color: TColor.primaryColor1,
                         ),
                       ),
-                      Stack(
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const NotificationView(),
-                                ),
-                              );
-                            },
-                            icon: Icon(
-                              Icons.notifications_none_sharp,
-                              size: 28,
-                              color: TColor.primaryColor1,
+                      if (unreadNotifications > 0)
+                        Positioned(
+                          right: 5,
+                          top: 5,
+                          child: Container(
+                            padding: EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
                             ),
-                          ),
-
-                          // Show badge only if there are unread notifications
-                          if (unreadNotifications > 0)
-                            Positioned(
-                              right: 5, // Position on the top-right corner
-                              top: 5,
-                              child: Container(
-                                padding: EdgeInsets.all(5), // Adjust padding for better fit
-                                decoration: BoxDecoration(
-                                  color: Colors.red, // Badge background color
-                                  shape: BoxShape.circle, // Circular shape
-                                ),
-                                constraints: BoxConstraints(
-                                  minWidth: 8, // Minimum size of the badge
-                                  minHeight: 8,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    unreadNotifications.toString(), // Display unread count
-                                    style: TextStyle(
-                                      color: Colors.white, // Text color
-                                      fontSize: 12, // Adjust text size
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                            constraints: BoxConstraints(
+                              minWidth: 8,
+                              minHeight: 8,
+                            ),
+                            child: Center(
+                              child: Text(
+                                unreadNotifications.toString(),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
-                        ],
-                      ),
+                          ),
+                        ),
                     ],
-                  ),
-                  SizedBox(height: 6),
-                  Container(
-                    width: MediaQuery.of(context).size.width * .9,
-                    child: TextFormField(
-                      cursorColor: TColor.primaryColor1,
-                      decoration: InputDecoration(
-                        hintText: 'Enter Plant Name',
-                        hintStyle: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.withOpacity(0.70),
-                          fontFamily: "Poppins",
-                        ),
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: Colors.grey.withOpacity(0.85),
-                        ),
-                        // suffixIcon: Icon(
-                        //   Icons.arrow,
-                        //   color: TColor.primaryColor1.withOpacity(.9),
-                        // ),
-                      ),
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
                   ),
                 ],
               ),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.only(bottom: 10.0), // Add bottom padding
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                  final site = filteredData[index];
-                  return GestureDetector(
-                    onLongPress: () => _showContextMenu(context, site, index),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
-                      child: CardHorizontal(
-                        title: site["title"] ?? "Unknown Site",
-                        description: site["description"] ?? "",
-                        img: site["img"] ?? "https://via.placeholder.com/200",
-                        tap: () {
-                          print("Tapped on ${site["title"]}");
-                          // Your existing tap handler
-                        },
-                        timestamp: DateTime.now(),
-                      ),
+              SizedBox(height: 6),
+              Container(
+                width: MediaQuery.of(context).size.width * .9,
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: TextFormField(
+                  cursorColor: TColor.primaryColor1,
+                  onChanged: (value) {
+                    setState(() {
+                      searchQuery = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Enter Site Name',
+                    hintStyle: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.withOpacity(0.70),
+                      fontFamily: "Poppins",
                     ),
-                  );
-                },
-                childCount: filteredData.length,
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    contentPadding:
+                    EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: Colors.grey.withOpacity(0.85),
+                    ),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
+      ),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : errorMessage != null
+          ? Center(child: Text(errorMessage!, style: TextStyle(color: Colors.red)))
+          : filteredFarms.isEmpty
+          ? Center(child: Text('No farms found'))
+          : RefreshIndicator(
+        onRefresh: _loadFarms,
+        child: ListView.builder(
+          padding: const EdgeInsets.only(bottom: 10.0),
+          itemCount: filteredFarms.length,
+          itemBuilder: (context, index) {
+            final farm = filteredFarms[index];
+            return GestureDetector(
+              onLongPress: () => _showContextMenu(context, farm),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 5.0, horizontal: 20.0),
+                child: CardHorizontal(
+                  title: farm.title,
+                  description: farm.description,
+                  img: farm.imageUrl.isNotEmpty ? farm.imageUrl : "https://via.placeholder.com/200",
+                  farmId: farm.id,
+                  tap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ShelfList(farmId: farm.id!),
+                      ),
+                    );
+                  },
+                  timestamp: farm.createdAt ?? DateTime.now(),
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
-
   }
 }
-
-

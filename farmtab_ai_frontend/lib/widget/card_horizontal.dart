@@ -10,6 +10,7 @@ class CardHorizontal extends StatelessWidget {
     this.price = "",
     this.timestamp,
     this.tap = defaultFunc,
+    this.farmId,
   });
 
   final String description;
@@ -18,6 +19,7 @@ class CardHorizontal extends StatelessWidget {
   final String title;
   final String price;
   final DateTime? timestamp;
+  final int? farmId;
 
   static void defaultFunc() {
     print("the function works!");
@@ -29,14 +31,7 @@ class CardHorizontal extends StatelessWidget {
     return Container(
       height: 280,
       child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ShelfList(),
-            ),
-          );
-        },
+        onTap: () => tap(),
         child: Card(
           elevation: 3,
           shape: RoundedRectangleBorder(
@@ -65,7 +60,7 @@ class CardHorizontal extends StatelessWidget {
                     child: Container(
                       height: 140,
                       width: double.infinity,
-                      child: Image.asset(
+                      child: Image.network(
                         img,
                         fit: BoxFit.cover,
                       ),

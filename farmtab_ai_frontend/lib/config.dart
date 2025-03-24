@@ -6,4 +6,6 @@ class Config {
   static const String loginEndpoint = '/auth/login';
   static const String forgotPasswordEndpoint = '/auth/forgot-password';
   static const String confirmForgotPasswordEndpoint = '/auth/confirm-forgot-password';
+  static const String changePasswordEndpoint = '/auth/change-password';
+  static const String validateToken = '/auth/validate-token';
 }

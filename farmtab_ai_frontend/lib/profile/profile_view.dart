@@ -1,6 +1,7 @@
 import 'package:farmtab_ai_frontend/profile/edit_profile.dart';
 import 'package:flutter/material.dart';
 
+import '../services/user_service.dart';
 import '../theme/color_extension.dart';
 import '../widget/round_button.dart';
 import 'package:farmtab_ai_frontend/widget/setting_row.dart';
@@ -15,6 +16,11 @@ class ProfileView extends StatefulWidget {
 }
 
 class _ProfileViewState extends State<ProfileView> {
+  final UserService _userService = UserService();
+  String? profileImageUrl;
+  String username = "User";
+  String bio = "";
+  bool isLoading = true;
   bool positive = false;
 
   List accountArr = [
@@ -31,29 +37,61 @@ class _ProfileViewState extends State<ProfileView> {
       "tag": "4"
     }
   ];
-
   List otherArr = [
     {"image": "assets/images/p_contact.png", "name": "Contact Us", "tag": "5"},
     {"image": "assets/images/p_privacy.png", "name": "Privacy Policy", "tag": "6"},
     {"image": "assets/images/p_setting.png", "name": "Setting", "tag": "7"},
     {"image": "assets/images/p_setting.png", "name": "Log Out", "tag": "8"},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserProfile();
+  }
+
+  Future<void> fetchUserProfile() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final userData = await _userService.getUserProfile();
+
+      setState(() {
+        username = userData['username'] ?? "User";
+        profileImageUrl = userData['profile_image_url'];
+        bio = userData['bio'] ?? "Passionate about learning and growing every day.";
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching user profile: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: TColor.white,
+        automaticallyImplyLeading: false,
+        scrolledUnderElevation: 0,
         centerTitle: true,
         elevation: 0,
         leadingWidth: 0,
         title: Text(
           "Profile",
           style: TextStyle(
-              color: TColor.primaryColor1, fontSize: 20, fontWeight: FontWeight.w700),
+              color: TColor.primaryColor1, fontSize: 20, fontWeight: FontWeight.w700,fontFamily: 'Poppins'),
         ),
       ),
       backgroundColor: TColor.white,
-      body: SingleChildScrollView(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(TColor.primaryColor1),))
+          :SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
           child: Column(
@@ -61,14 +99,19 @@ class _ProfileViewState extends State<ProfileView> {
             children: [
               Row(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: Image.asset(
-                      "assets/images/profile_photo.jpg",
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                    ),
+                  CircleAvatar(
+                    radius: 26,
+                    backgroundImage: profileImageUrl != null && profileImageUrl!.isNotEmpty
+                        ? NetworkImage(profileImageUrl!)
+                        : AssetImage("assets/images/profile_photo.jpg") as ImageProvider,
+                    onBackgroundImageError: profileImageUrl != null && profileImageUrl!.isNotEmpty
+                        ? (exception, stackTrace) {
+                      // Silently handle error and fall back to default image
+                      setState(() {
+                        profileImageUrl = null; // Reset to use default image
+                      });
+                    }
+                        : null,
                   ),
                   const SizedBox(
                     width: 15,
@@ -78,20 +121,22 @@ class _ProfileViewState extends State<ProfileView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Stefani Wong",
+                          "$username",
                           style: TextStyle(
                             color: TColor.primaryColor1,
                             fontSize: 18,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins',
                           ),
                         ),
                         Text(
-                          "A cool girl~",
+                          bio.length > 20 ? "${bio.substring(0, 20)}..." : bio,
                           style: TextStyle(
                             color: TColor.primaryColor2,
-                            fontSize: 16,
+                            fontSize: 14,
+                            fontFamily: 'Inter',
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -109,7 +154,9 @@ class _ProfileViewState extends State<ProfileView> {
                           MaterialPageRoute(
                             builder: (context) => EditProfilePage(),
                           ),
-                        );
+                        ).then((_) {
+                          fetchUserProfile(); // Refresh data
+                        });
                       },
                     ),
                   )

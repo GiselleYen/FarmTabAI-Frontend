@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/auth_exception.dart';
 import '../services/auth_service.dart';
 
 class AuthProvider with ChangeNotifier {
@@ -23,6 +24,61 @@ class AuthProvider with ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  Future<void> validateSession(BuildContext context) async {
+    final isValid = await _authService.isTokenValid();
+
+    if (!isValid && _isLoggedIn) {
+      // Token is invalid but we thought we were logged in
+      await handleSessionExpiration(context);
+    }
+  }
+
+  Future<void> handleSessionExpiration(BuildContext context) async {
+    // Update state
+    await _authService.clearTokens();
+    _isLoggedIn = false;
+
+    // Show dialog only if context is available and valid
+    if (context.mounted) {
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext dialogContext) {
+          return AlertDialog(
+            title: const Text('Session Expired'),
+            content: const Text('Your session has expired. Please log in again.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+    notifyListeners();
+  }
+
+// Modify your authenticatedRequest method to catch unauthorized errors
+  Future<Map<String, dynamic>> authenticatedRequest(
+      BuildContext context, String endpoint, {Map<String, dynamic>? data, String method = 'GET'}) async {
+    try {
+      final result = await _authService.authenticatedRequest(endpoint, data: data, method: method);
+      return result;
+    } on UnauthorizedException catch (_) {
+      await handleSessionExpiration(context);
+      return {'success': false, 'message': 'Session expired, please log in again'};
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return {'success': false, 'message': e.toString()};
+    }
   }
 
   Future<bool> register(String email, String password, String name) async {

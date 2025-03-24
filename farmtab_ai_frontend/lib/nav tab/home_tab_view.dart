@@ -6,12 +6,11 @@ import 'package:farmtab_ai_frontend/widget/tab_button.dart';
 import 'package:flutter/material.dart';
 import 'package:farmtab_ai_frontend/homepage/home_page.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:provider/provider.dart';
 
 import '../profile/profile_view.dart';
-// import '../photo_progress/photo_progress_view.dart';
-// import '../profile/profile_view.dart';
-// import '../workout_tracker/workout_tracker_view.dart';
-
+import '../providers/auth_provider.dart';
+import 'chat.dart';
 
 class HomeTabView extends StatefulWidget {
   const HomeTabView({super.key});
@@ -24,36 +23,54 @@ class _HomeTabViewState extends State<HomeTabView> {
   int selectTab = 0;
   final PageStorageBucket pageBucket = PageStorageBucket();
   Widget currentTab = const HomePage();
+
+  // // In your HomeTabView or any authenticated screen's initState:
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   // Check session validity when screen loads
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     Provider.of<AuthProvider>(context, listen: false).validateSession(context);
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: TColor.white,
+      resizeToAvoidBottomInset: false,
       body: PageStorage(bucket: pageBucket, child: currentTab),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      // floatingActionButton: SizedBox(
-      //   width: 70,
-      //   height: 70,
-      //   child: InkWell(
-      //     onTap: () {},
-          // child: Container(
-          //   width: 65,
-          //   height: 65,
-          //   decoration: BoxDecoration(
-          //       gradient: LinearGradient(
-          //         colors: TColor.primaryG,
-          //       ),
-          //       borderRadius: BorderRadius.circular(35),
-          //       boxShadow: const [
-          //         BoxShadow(
-          //           color: Colors.black12,
-          //           blurRadius: 2,)
-          //       ]),
-          //   child: Icon(Icons.search,color: TColor.white, size: 35, ),
-          // ),
-      //   ),
-      // ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: SizedBox(
+        width: 65,
+        height: 65,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatPage(),
+            ),
+          );},
+          child: Container(
+            width: 45,
+            height: 45,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: TColor.primaryG,
+                ),
+                borderRadius: BorderRadius.circular(35),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 2,)
+                ]),
+            child: Icon(Icons.chat_outlined,color: TColor.white, size: 26, ),
+          ),
+        ),
+      ),
       bottomNavigationBar: BottomAppBar(
-          height: kIsWeb ? 60 : (Platform.isIOS ? 70 : 65),
+          height: kIsWeb ? 60 : (Platform.isIOS ? 75 : 70),
           color: Colors.transparent,
           padding: const EdgeInsets.all(0),
           child: Container(
@@ -90,7 +107,7 @@ class _HomeTabViewState extends State<HomeTabView> {
                         setState(() {});
                       }
                     }),
-                // const  SizedBox(width: 40,),
+                const  SizedBox(width: 10,),
                 TabButton(
                     icon: "assets/images/favourite_tab.png",
                     selectIcon: "assets/images/favourite_tab_select.png",

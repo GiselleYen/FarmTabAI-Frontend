@@ -5,7 +5,9 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart';
 import 'package:async/async.dart';
-import 'package:http_parser/http_parser.dart'; // Add this import
+import 'package:http_parser/http_parser.dart';
+
+import '../models/user.dart'; // Add this import
 
 class UserService {
   static const String baseUrl = 'http://app.farmtab.my:4000';
@@ -35,6 +37,70 @@ class UserService {
       }
     } catch (e) {
       print('Error in getUserProfile: $e');
+      throw e;
+    }
+  }
+
+  Future<Map<String, dynamic>> updateUserName(String username) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('access_token');
+
+      if (token == null) {
+        throw Exception("No authentication token found");
+      }
+
+      final response = await http.put(
+        Uri.parse('$baseUrl/user/profile'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "username": username, // Send only the name field
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data;
+      } else {
+        throw Exception('Failed to update name: ${response.body}');
+      }
+    } catch (e) {
+      print('Error in updateUserName: $e');
+      throw e;
+    }
+  }
+
+  Future<Map<String, dynamic>> updateUserBio(String bio) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('access_token');
+
+      if (token == null) {
+        throw Exception("No authentication token found");
+      }
+
+      final response = await http.put(
+        Uri.parse('$baseUrl/user/profile'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "bio": bio,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data;
+      } else {
+        throw Exception('Failed to update bio: ${response.body}');
+      }
+    } catch (e) {
+      print('Error in updateUserBio: $e');
       throw e;
     }
   }
@@ -119,6 +185,62 @@ class UserService {
     } catch (e) {
       print('Error in uploadProfileImage: $e');
       throw e;
+    }
+  }
+  // Get all users
+  Future<List<User>> getUsers() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/user/getUsers'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        return jsonData.map((json) => User.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load users: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to connect to server: $e');
+    }
+  }
+
+  // Assign user to organization
+  Future<User> assignUserToOrganization(String userId, String? organizationId) async {
+    try {
+      final response = await http.patch(
+        Uri.parse('$baseUrl/user/$userId/organization'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'organizationId': organizationId}),
+      );
+
+      if (response.statusCode == 200) {
+        return User.fromJson(json.decode(response.body));
+      } else {
+        throw Exception('Failed to assign organization: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to connect to server: $e');
+    }
+  }
+
+  // Update user role
+  Future<User> updateUserRole(String userId, String role) async {
+    try {
+      final response = await http.patch(
+        Uri.parse('$baseUrl/user/$userId/role'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'role': role}),
+      );
+
+      if (response.statusCode == 200) {
+        return User.fromJson(json.decode(response.body));
+      } else {
+        throw Exception('Failed to update role: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to connect to server: $e');
     }
   }
 }

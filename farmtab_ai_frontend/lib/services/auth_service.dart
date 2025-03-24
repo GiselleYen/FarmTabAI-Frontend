@@ -2,25 +2,67 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config.dart';
+import 'auth_exception.dart';
 
 class AuthService {
   // Store tokens
-  Future<void> _storeTokens(String accessToken, String idToken, String refreshToken) async {
+  Future<void> _storeTokens(String accessToken, String idToken, String refreshToken, String email) async {
     final prefs = await SharedPreferences.getInstance();
 
     await prefs.setString('access_token', accessToken);
     await prefs.setString('id_token', idToken);
     await prefs.setString('refresh_token', refreshToken);
+    await prefs.setString('user_email', email);
 
     // Debugging: Check if tokens are actually saved
     String? storedToken = prefs.getString('access_token');
+    String? storedEmail = prefs.getString('user_email');
     print("✅ Stored Access Token: $storedToken");
+    print("✅ Stored User Email: $storedEmail");
 
     if (storedToken == null) {
       print("🚨 Token storage failed!");
     }
+    if (storedEmail == null) {
+      print("🚨 Email storage failed!");
+    }
   }
 
+  Future<bool> isTokenValid() async {
+    final token = await getAccessToken();
+    if (token == null) return false;
+
+    try {
+      // Make a lightweight API call to validate the token
+      final response = await http.get(
+        Uri.parse('${Config.apiUrl}/validate-token'), // Create this endpoint on your backend
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<http.Response> handleApiRequest(Future<http.Response> apiCall) async {
+    try {
+      final response = await apiCall;
+
+      // If unauthorized, token might be expired
+      if (response.statusCode == 401) {
+        // Clear tokens on 401 response
+        await clearTokens();
+        throw UnauthorizedException('Session expired');
+      }
+
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   // Get stored access token
   Future<String?> getAccessToken() async {
@@ -34,6 +76,11 @@ class AuthService {
     await prefs.remove('access_token');
     await prefs.remove('id_token');
     await prefs.remove('refresh_token');
+  }
+
+  Future<String> getCurrentUserEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('user_email') ?? '';
   }
 
   // Register new user
@@ -97,6 +144,7 @@ class AuthService {
           responseData['tokens']['accessToken'],
           responseData['tokens']['idToken'],
           responseData['tokens']['refreshToken'],
+          email,
         );
       }
 
@@ -129,6 +177,25 @@ class AuthService {
       body: jsonEncode({
         'email': email,
         'confirmationCode': confirmationCode,
+        'newPassword': newPassword,
+      }),
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  // Change password function for authenticated users
+  Future<Map<String, dynamic>> changePassword(
+      String email,
+      String oldPassword,
+      String newPassword
+      ) async {
+    final response = await http.post(
+      Uri.parse('${Config.apiUrl}${Config.changePasswordEndpoint}'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': email,
+        'oldPassword': oldPassword,
         'newPassword': newPassword,
       }),
     );

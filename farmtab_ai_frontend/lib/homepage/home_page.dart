@@ -1,6 +1,6 @@
 import 'package:farmtab_ai_frontend/login_register/welcome_screen.dart';
 import 'package:farmtab_ai_frontend/nav%20tab/shelf_tab_view.dart';
-import 'package:farmtab_ai_frontend/widget/round_button.dart';
+import 'package:farmtab_ai_frontend/profile/edit_profile.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
@@ -21,6 +21,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final UserService _userService = UserService();
+  String? profileImageUrl;
   String username = "User";
   bool isLoading = true;
 
@@ -98,11 +99,11 @@ class _HomePageState extends State<HomePage> {
     });
 
     try {
-      // Get user profile from service
       final userData = await _userService.getUserProfile();
 
       setState(() {
         username = userData['username'] ?? "User";
+        profileImageUrl = userData['profile_image_url'];
         isLoading = false;
       });
     } catch (e) {
@@ -142,7 +143,9 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: TColor.white,
-      body: SingleChildScrollView(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(TColor.primaryColor1),))
+          :SingleChildScrollView(
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -156,9 +159,7 @@ class _HomePageState extends State<HomePage> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        isLoading
-                            ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(TColor.primaryColor1),))
-                            : Text(
+                        Text(
                           "Hi $username,",
                           style: TextStyle(
                             color: TColor.primaryColor1,
@@ -245,11 +246,10 @@ class _HomePageState extends State<HomePage> {
                               PopupMenuButton<String>(
                                 onSelected: (value) {
                                   if (value == 'profile') {
-                                    // Navigate to Profile Screen
-                                    // Navigator.push(
-                                    //   context,
-                                    //   MaterialPageRoute(builder: (context) => ProfileScreen()), // Replace with your Profile screen widget
-                                    // );
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => EditProfilePage()), // Replace with your Profile screen widget
+                                    );
                                   } else if (value == 'logout') {
                                     // Handle Log Out action
                                     showDialog(
@@ -335,9 +335,19 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                   ),
                                 ],
-                                child: CircleAvatar(
-                                  radius: 26, // Adjust size
-                                  backgroundImage: AssetImage("assets/images/profile_photo.jpg"), // Replace with your asset path
+                                child:CircleAvatar(
+                                  radius: 26,
+                                  backgroundImage: profileImageUrl != null && profileImageUrl!.isNotEmpty
+                                      ? NetworkImage(profileImageUrl!)
+                                      : AssetImage("assets/images/profile_photo.jpg") as ImageProvider,
+                                  onBackgroundImageError: profileImageUrl != null && profileImageUrl!.isNotEmpty
+                                      ? (exception, stackTrace) {
+                                    // Silently handle error and fall back to default image
+                                    setState(() {
+                                      profileImageUrl = null; // Reset to use default image
+                                    });
+                                  }
+                                      : null,
                                 ),
                               ),
                             ],

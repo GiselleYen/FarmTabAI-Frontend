@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import '../theme/color_extension.dart';
+import 'package:flutter/material.dart';
+import 'package:farmtab_ai_frontend/theme/color_extension.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AddFarmModal extends StatefulWidget {
-  final Function(String name, String description, File? image) onSave;
+  final Function(String, String, XFile?) onSave;
   final String? initialName;
   final String? initialDescription;
   final String? initialImagePath;
@@ -22,227 +22,18 @@ class AddFarmModal extends StatefulWidget {
 }
 
 class _AddFarmModalState extends State<AddFarmModal> {
-  final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
-  File? _selectedImage;
+  XFile? _image;
+  final ImagePicker _picker = ImagePicker();
+  bool _isEditing = false;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.initialName ?? '');
     _descriptionController = TextEditingController(text: widget.initialDescription ?? '');
-    if (widget.initialImagePath != null) {
-      _selectedImage = File(widget.initialImagePath!);
-    }
-  }
-
-  Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
-    if (image != null) {
-      setState(() {
-        _selectedImage = File(image.path);
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 18, horizontal: 26),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 5,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              widget.initialName != null ? 'Edit Farm' : 'Add New Farm',
-              style: TextStyle(
-                color: TColor.primaryColor1,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                fontFamily: "Poppins",
-              ),
-            ),
-            SizedBox(height: 16),
-            GestureDetector(
-              onTap: _pickImage,
-              child: Container(
-                height: 130,
-                width: 250,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: _selectedImage != null
-                    ? ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.file(
-                    _selectedImage!,
-                    fit: BoxFit.cover,
-                  ),
-                )
-                    : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.add_photo_alternate, size: 40),
-                    SizedBox(height: 8),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-            TextFormField(
-              cursorColor: TColor.primaryColor1.withOpacity(0.7),
-              controller: _nameController,
-              decoration: InputDecoration(
-                label: Text(
-                  'Farm Name',
-                  style: TextStyle(
-                    color: TColor.primaryColor1,
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-                hintText: 'Enter Farm Name',
-                hintStyle: TextStyle(
-                  color: TColor.gray,
-                  fontFamily: 'Poppins',
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: TColor.primaryColor1,
-                  ),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: TColor.primaryColor1,
-                  ),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: TColor.primaryColor1,
-                    width: 1.5,
-                  ),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter farm name';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 16),
-            TextFormField(
-              cursorColor: TColor.primaryColor1.withOpacity(0.7),
-              controller: _descriptionController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                label: Text(
-                  'Description',
-                  style: TextStyle(
-                    color: TColor.primaryColor1,
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-                hintText: 'Enter Description',
-                hintStyle: TextStyle(
-                  color: TColor.gray,
-                  fontFamily: 'Poppins',
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: TColor.primaryColor1,
-                  ),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: TColor.primaryColor1,
-                  ),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: TColor.primaryColor1,
-                    width: 1.5,
-                  ),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter description';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    'Cancel',
-                    style: TextStyle(
-                      color: TColor.primaryColor1,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: "Poppins",
-                    ),
-                  ),
-                ),
-                SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      widget.onSave(
-                        _nameController.text,
-                        _descriptionController.text,
-                        _selectedImage,
-                      );
-                      Navigator.pop(context);
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: TColor.primaryColor1,
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    widget.initialName != null ? 'Update' : 'Save',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: "Poppins",
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 4),
-          ],
-        ),
-      ),
-    );
+    _isEditing = widget.initialName != null;
   }
 
   @override
@@ -250,5 +41,192 @@ class _AddFarmModalState extends State<AddFarmModal> {
     _nameController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final XFile? selectedImage = await _picker.pickImage(source: ImageSource.gallery);
+      if (selectedImage != null) {
+        setState(() {
+          _image = selectedImage;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error picking image: $e')),
+      );
+    }
+  }
+
+  Widget _buildImageSection() {
+    Widget imageContent;
+
+    if (_image != null) {
+      imageContent = ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Image.file(File(_image!.path), fit: BoxFit.cover),
+      );
+    } else if (widget.initialImagePath != null && widget.initialImagePath!.isNotEmpty) {
+      imageContent = ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: widget.initialImagePath!.startsWith('http')
+            ? Image.network(
+          widget.initialImagePath!,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _buildPlaceholderImage(),
+        )
+            : Image.asset(widget.initialImagePath!, fit: BoxFit.cover),
+      );
+    } else {
+      imageContent = _buildPlaceholderImage();
+    }
+
+    return GestureDetector(
+      onTap: _pickImage,
+      child: Container(
+        height: 120,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.grey.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.grey.withOpacity(0.3)),
+        ),
+        child: imageContent,
+      ),
+    );
+  }
+
+  Widget _buildPlaceholderImage() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.add_photo_alternate_outlined, size: 40, color: TColor.primaryColor1),
+          SizedBox(height: 8),
+          Text('Add Site Image', style: TextStyle(color: TColor.primaryColor1, fontFamily: "Poppins")),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller, {int maxLines = 1, String hint = ''}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, fontFamily: "Poppins"),
+        ),
+        SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.grey.withOpacity(0.3)),
+          ),
+          child: TextFormField(
+            controller: controller,
+            maxLines: maxLines,
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: TextStyle(color: Colors.grey, fontFamily: "Poppins"),
+              contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+              border: InputBorder.none,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                _isEditing ? 'Edit Site' : 'Add New Site',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: TColor.primaryColor1,
+                  fontFamily: "Poppins",
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.close, color: Colors.grey),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+
+          // Scrollable content
+          Flexible(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 15),
+                  _buildImageSection(),
+                  SizedBox(height: 15),
+                  _buildTextField('Site Name', _nameController, hint: 'Enter site name'),
+                  SizedBox(height: 15),
+                  _buildTextField('Description', _descriptionController, maxLines: 3, hint: 'Enter site description'),
+                  SizedBox(height: 25),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        final name = _nameController.text.trim();
+                        final description = _descriptionController.text.trim();
+
+                        if (name.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Please enter a site name')),
+                          );
+                          return;
+                        }
+
+                        widget.onSave(name, description, _image);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: TColor.primaryColor1,
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        _isEditing ? 'Update Site' : 'Add Site',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                          fontFamily: "Poppins",
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

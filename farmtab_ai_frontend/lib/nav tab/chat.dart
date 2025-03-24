@@ -1,6 +1,12 @@
+import 'dart:async';
+
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'typing_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:uuid/uuid.dart';
 
 import '../theme/color_extension.dart';
 
@@ -24,6 +30,7 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+
   final List<Message> _messages = [
     Message(
       text: "Hello! How can I help you today?",
@@ -33,6 +40,31 @@ class _ChatPageState extends State<ChatPage> {
   ];
 
   bool _isLoading = false; // To show loading indicator
+
+  String? sessionId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOrCreateSessionId();
+  }
+
+  Future<void> _loadOrCreateSessionId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedSessionId = prefs.getString('chat_session_id');
+
+    if (storedSessionId != null) {
+      setState(() {
+        sessionId = storedSessionId;
+      });
+    } else {
+      final newSessionId = const Uuid().v4();
+      await prefs.setString('chat_session_id', newSessionId);
+      setState(() {
+        sessionId = newSessionId;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -47,29 +79,34 @@ class _ChatPageState extends State<ChatPage> {
 
     String userInput = _messageController.text;
 
-    // Add user message to chat UI
     setState(() {
       _messages.add(Message(
         text: userInput,
         isUser: true,
         timestamp: DateTime.now(),
       ));
-      _isLoading = true; // Show loading indicator
+      _isLoading = true;
     });
 
     _messageController.clear();
     _scrollToBottom();
 
     try {
-      // Call the API
+      const Duration apiTimeout = Duration(seconds: 180);
+
       final response = await http.post(
-        Uri.parse("http://43.217.51.84:5000/generate"), // Replace with your backend URL
+        Uri.parse("http://43.217.81.223:3000/generate"),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode({"prompt": userInput}),
-      );
+        body: jsonEncode({
+          "prompt": userInput,
+          "sessionId": sessionId,
+          "serialNumber": "UTC-510GP-ATB1E",
+        }),
+      ).timeout(apiTimeout, onTimeout: () {
+        throw TimeoutException('The request took too long to complete.');
+      });
 
       if (response.statusCode == 200) {
-        // Parse the AI response
         String aiResponse = jsonDecode(response.body)["response"];
 
         setState(() {
@@ -98,7 +135,7 @@ class _ChatPageState extends State<ChatPage> {
       });
     } finally {
       setState(() {
-        _isLoading = false; // Hide loading indicator
+        _isLoading = false;
       });
       _scrollToBottom();
     }
@@ -126,6 +163,7 @@ class _ChatPageState extends State<ChatPage> {
       backgroundColor: TColor.backgroundColor1,
       appBar: AppBar(
         backgroundColor: Colors.white,
+        scrolledUnderElevation: 0,
         title: const Text('Chat'),
       ),
       body: Column(
@@ -137,11 +175,39 @@ class _ChatPageState extends State<ChatPage> {
               itemCount: _messages.length + (_isLoading ? 1 : 0), // Add loader if active
               itemBuilder: (context, index) {
                 if (_isLoading && index == _messages.length) {
-                  return Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: EdgeInsets.all(8),
-                      child: CircularProgressIndicator(),
+                  return Padding(
+                    padding: EdgeInsets.only(bottom: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        // Avatar for the assistant while typing
+                        Container(
+                          height: 40,
+                          width: 40,
+                          child: CircleAvatar(
+                            backgroundImage: AssetImage("assets/images/shelfA.jpg"),
+                            radius: 65.0,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        // Animated typing indicator
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                                offset: Offset(2, 4),
+                              ),
+                            ],
+                          ),
+                          child: TypingIndicator(),
+                        ),
+                      ],
                     ),
                   );
                 }
@@ -175,10 +241,10 @@ class _ChatPageState extends State<ChatPage> {
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.1), // Shadow color with opacity
-                                blurRadius: 8, // Blur radius for soft edges
-                                spreadRadius: 1, // Spread radius to increase/decrease shadow size
-                                offset: Offset(2, 4), // Horizontal and vertical offset of shadow
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                                offset: Offset(2, 4),
                               ),
                             ],
                           ),

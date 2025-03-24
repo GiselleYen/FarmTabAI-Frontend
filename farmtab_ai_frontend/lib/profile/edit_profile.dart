@@ -1,12 +1,15 @@
 
 import 'dart:io';
 
+import 'package:farmtab_ai_frontend/profile/edit_user_profile/edit_bio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 
 import '../services/user_service.dart';
 import '../widget/profile_row.dart';
+import 'edit_user_profile/change_password.dart';
+import 'edit_user_profile/edit_name.dart';
 
 class EditProfilePage extends StatefulWidget {
 
@@ -21,6 +24,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
   bool _isLoading = true;
   File? _imageFile;
   bool _isUploading = false;
+
+  String username = "User";
+  String email = "@gmail.com";
+  String bio = "";
 
   @override
   void initState() {
@@ -37,13 +44,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
       final userProfile = await _userService.getUserProfile();
       setState(() {
         _userProfile = userProfile;
+        username = _userProfile?['username'] ?? "User";
+        email = _userProfile?['email'] ?? "@gmail.com";
+        bio = _userProfile?['bio'] ?? "";
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
         _isLoading = false;
       });
-      // Handle error (show a snackbar, etc.)
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to load profile: $e')),
       );
@@ -103,19 +113,53 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
-  List accountArr = [
-    {"image": "assets/images/p_personal.png", "name": "Name", "tag": "1"},
-    {"image": "assets/images/p_achi.png", "name": "Email", "tag": "2"},
-    {
-      "image": "assets/images/p_activity.png",
-      "name": "Change Password",
-      "tag": "3"
-    },
-    {
-      "image": "assets/images/p_workout.png",
-      "name": "Bio",
-      "tag": "4"
-    }
+  void _showEmailChangeNotSupportedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text("Email Change Not Supported",
+            style: TextStyle(
+                color: TColor.primaryColor1,
+                fontSize: 17,//
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Inter'
+            ),
+          ),
+          content: Text("Currently, changing your email address is not supported.",
+            style: TextStyle(
+                color: Colors.black,
+                fontSize: 14,
+                fontFamily: 'Inter'
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+              },
+              child: Text("OK",
+                style: TextStyle(
+                    color: TColor.primaryColor1,
+                    fontSize: 14,//
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter'
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  List<Map<String, dynamic>> get accountArr => [
+    {"icon": Icons.person_2_outlined, "name": username, "tag": "1"},
+    {"icon": Icons.email_outlined, "name": email, "tag": "2"},
+    {"icon": Icons.lock, "name": "Change Password", "tag": "3"},
+    {"icon": Icons.info, "name": "Bio", "tag": "4"},
   ];
 
   @override
@@ -158,13 +202,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         },
       );
     } else {
-      // Show default image
-      profileImage = Image.asset(
-        "assets/images/profile_photo.jpg",
-        width: 100,
-        height: 100,
-        fit: BoxFit.cover,
-      );
+      profileImage = Container();
     }
 
     return Scaffold(
@@ -175,7 +213,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
           style: TextStyle(
             color: TColor.primaryColor1,
             fontSize: 24,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
+              fontFamily: 'Poppins'
           ),
         ),
         backgroundColor: Colors.white,
@@ -184,12 +223,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
             Icons.arrow_back, // Back icon
             color: TColor.primaryColor1, // Change the back icon color
           ),
-          onPressed: () {
-            Navigator.pop(context); // Go back to previous screen
+          onPressed: () async {
+            Navigator.pop(context);
           },
         ),
       ),
-      body: Container(
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(TColor.primaryColor1),))
+          :Container(
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
         child: Center(
           child: Column(
@@ -214,6 +255,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 13,
+                          fontFamily: 'Inter'
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
@@ -246,6 +288,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 13,
+                            fontFamily: 'Inter'
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
@@ -267,14 +310,61 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   itemBuilder: (context, index) {
                     var iObj = accountArr[index] as Map? ?? {};
                     return ProfileRow(
-                      icon: iObj["image"].toString(),
+                      icon: iObj["icon"] as IconData, // Ensure it's used as IconData
                       title: iObj["name"].toString(),
-                      onPressed: () {},
+                      onPressed: () async {
+                        // Check which row was clicked based on the tag
+                        if (iObj["tag"] == "1") {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditNamePage(currentName: username),
+                            ),
+                          ).then((_) {
+                            _loadUserProfile(); // Refresh data
+                          });
+
+                          // Handle the result when user returns from edit page
+                          if (result != null) {
+                            setState(() {
+                              username = result;
+                            });
+                          }
+
+                        } else if (iObj["tag"] == "2") {
+                          _showEmailChangeNotSupportedDialog(context);
+
+                        } else if (iObj["tag"] == "3") {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ChangePasswordPage(),
+                            ),
+                          ).then((_) {
+                            _loadUserProfile(); // Refresh data
+                          });
+
+                        } else if (iObj["tag"] == "4") {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditBioPage(currentBio: bio),
+                            ),
+                          ).then((_) {
+                            _loadUserProfile(); // Refresh data
+                          });
+
+                          // Handle the result when user returns from edit page
+                          if (result != null) {
+                            setState(() {
+                              username = result;
+                            });
+                          }
+                        }
+                      },
                     );
                   },
                 )
-
-
             ],
           ),
         ),

@@ -1,9 +1,10 @@
 import 'dart:io' show Platform;
 import 'package:farmtab_ai_frontend/shelf/calibration.dart';
+import 'package:farmtab_ai_frontend/shelf/device_register.dart';
 import 'package:farmtab_ai_frontend/shelf/sensor_data_dashboard.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 import 'package:flutter/material.dart';
-import '../shelf/chat.dart';
+import 'chat.dart';
 import '../shelf/devices_mange.dart';
 
 class ShelfTabView extends StatefulWidget {
@@ -106,7 +107,7 @@ class _ShelfTabViewState extends State<ShelfTabView> {
             2,
                 () {
               selectTab = 2;
-              currentTab = const DevicesMangePage();
+              currentTab = DeviceRegistrationPage();
               _toggleExpanded();
               setState(() {});
             },
