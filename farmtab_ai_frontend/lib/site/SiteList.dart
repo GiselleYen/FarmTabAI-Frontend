@@ -2,9 +2,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../homepage/notification_view.dart';
 import '../models/farm_site.dart';
+import '../providers/auth_provider.dart';
 import '../services/farmSite_service.dart';
+import '../services/user_service.dart';
 import '../shelf/shelf_list.dart';
 import '../widget/add_farm_modal.dart';
 import '../widget/card_horizontal.dart';
@@ -17,22 +21,54 @@ class SiteList extends StatefulWidget {
 }
 
 class _SiteListState extends State<SiteList> {
-  // API service instance
   final FarmService _apiService = FarmService();
-
-  // Farms list
   List<Farm> farms = [];
   bool isLoading = true;
   String? errorMessage;
-
-  // Search query state
   String searchQuery = "";
-  int unreadNotifications = 3;
+  int unreadNotifications = 0;
+  String userRole = '';
+  int organizationID = 0;
+  int userID = 0;
 
   @override
   void initState() {
     super.initState();
+    fetchUserProfile();
+    _fetchUserRole();
     _loadFarms();
+  }
+
+  Future<void> fetchUserProfile() async {
+    setState(() => isLoading = true);
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final userData = await authProvider.getUserProfile(context);
+      setState(() {
+        organizationID = userData['organization_id'];
+        userID = userData['user_id'];
+      });
+      final userService = UserService();
+      int count = await userService.getUnreadNotificationCount(userID, organizationID);
+      setState(() => unreadNotifications = count);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${e.toString()}')));
+      }
+    } finally {
+      if (mounted) setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> _fetchUserRole() async {
+    try {
+      final userService = UserService();
+      final userProfile = await userService.getUserProfile();
+      setState(() => userRole = userProfile['role'] ?? 'user');
+    } catch (e) {
+      print('Failed to fetch user role: $e');
+      setState(() => userRole = 'user');
+    }
   }
 
   Future<void> _loadFarms() async {
@@ -40,7 +76,6 @@ class _SiteListState extends State<SiteList> {
       isLoading = true;
       errorMessage = null;
     });
-
     try {
       final fetchedFarms = await _apiService.getFarms();
       setState(() {
@@ -59,11 +94,9 @@ class _SiteListState extends State<SiteList> {
     try {
       File? imageFile = image != null ? File(image.path) : null;
       await _apiService.createFarm(title, description, imageFile);
-      await _loadFarms(); // Reload farms
+      await _loadFarms();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error adding farm: $e')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error adding farm: $e')));
     }
   }
 
@@ -71,22 +104,18 @@ class _SiteListState extends State<SiteList> {
     try {
       File? imageFile = image != null ? File(image.path) : null;
       await _apiService.updateFarm(id, title, description, imageFile);
-      await _loadFarms(); // Reload farms
+      await _loadFarms();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating farm: $e')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error updating farm: $e')));
     }
   }
 
   Future<void> _deleteFarm(int id) async {
     try {
       await _apiService.deleteFarm(id);
-      await _loadFarms(); // Reload farms
+      await _loadFarms();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error deleting farm: $e')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error deleting farm: $e')));
     }
   }
 
@@ -98,10 +127,10 @@ class _SiteListState extends State<SiteList> {
         return Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-            ),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: Offset(0, 5)),
+            ],
           ),
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: Column(
@@ -112,7 +141,7 @@ class _SiteListState extends State<SiteList> {
                 height: 4,
                 margin: EdgeInsets.only(bottom: 20),
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: TColor.lightGray,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -128,46 +157,31 @@ class _SiteListState extends State<SiteList> {
               SizedBox(height: 10),
               ListTile(
                 leading: Icon(Icons.edit, color: TColor.primaryColor1),
-                title: Text(
-                  'Edit Site',
-                  style: TextStyle(
-                    fontFamily: "Poppins",
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                title: Text('Edit Site', style: TextStyle(fontFamily: "Inter", fontWeight: FontWeight.w600)),
                 onTap: () {
                   Navigator.pop(context);
                   showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
-                    builder: (context) =>
-                        Padding(
-                          padding: EdgeInsets.only(
-                            bottom: MediaQuery.of(context).viewInsets.bottom,
-                          ),
-                          child: AddFarmModal(
-                            initialName: farm.title,
-                            initialDescription: farm.description,
-                            initialImagePath: farm.imageUrl,
-                            onSave: (name, description, image) {
-                              _updateFarm(farm.id!, name, description, image);
-                              Navigator.pop(context);
-                            },
-                          ),
-                        ),
+                    builder: (context) => Padding(
+                      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                      child: AddFarmModal(
+                        initialName: farm.title,
+                        initialDescription: farm.description,
+                        initialImagePath: farm.imageUrl,
+                        onSave: (name, description, image) {
+                          _updateFarm(farm.id!, name, description, image);
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
                   );
                 },
               ),
               ListTile(
                 leading: Icon(Icons.delete, color: Colors.red),
-                title: Text(
-                  'Delete Site',
-                  style: TextStyle(
-                    fontFamily: "Poppins",
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                title: Text('Delete Site', style: TextStyle(fontFamily: "Inter", fontWeight: FontWeight.w600)),
                 onTap: () {
                   Navigator.pop(context);
                   showDialog(
@@ -175,40 +189,16 @@ class _SiteListState extends State<SiteList> {
                     builder: (BuildContext context) {
                       return AlertDialog(
                         backgroundColor: Colors.white,
-                        title: Text(
-                          'Delete Site',
-                          style: TextStyle(
-                            fontFamily: "Poppins",
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        content: Text(
-                          'Are you sure you want to delete this site?',
-                          style: TextStyle(
-                            fontFamily: "Poppins",
-                          ),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                        title: Text('Delete Site', style: TextStyle(fontFamily: "Poppins", fontWeight: FontWeight.bold)),
+                        content: Text('Are you sure you want to delete this site?', style: TextStyle(fontFamily: "Inter")),
                         actions: [
                           TextButton(
-                            child: Text(
-                              'Cancel',
-                              style: TextStyle(
-                                color: TColor.primaryColor1,
-                                fontFamily: "Poppins",
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                            child: Text('Cancel', style: TextStyle(color: TColor.primaryColor1, fontFamily: "Inter", fontWeight: FontWeight.w600)),
                             onPressed: () => Navigator.pop(context),
                           ),
                           TextButton(
-                            child: Text(
-                              'Delete',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontFamily: "Poppins",
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                            child: Text('Delete', style: TextStyle(color: Colors.red, fontFamily: "Inter", fontWeight: FontWeight.w600)),
                             onPressed: () {
                               _deleteFarm(farm.id!);
                               Navigator.pop(context);
@@ -230,191 +220,284 @@ class _SiteListState extends State<SiteList> {
 
   @override
   Widget build(BuildContext context) {
-    // Filtered data based on search query
-    final filteredFarms = farms
-        .where((farm) => farm.title.toLowerCase().contains(searchQuery.toLowerCase()))
-        .toList();
+    final filteredFarms = farms.where((farm) => farm.title.toLowerCase().contains(searchQuery.toLowerCase())).toList();
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(130),
-        child: Container(
-          color: Colors.white,
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 4),
-          child: Column(
-            children: [
-              SizedBox(height: 20),
-              Row(
+      backgroundColor: TColor.backgroundColor1,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 150,
+            floating: false,
+            pinned: true,
+            automaticallyImplyLeading: false,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [TColor.primaryColor1.withOpacity(0.8), TColor.primaryColor2.withOpacity(0.7)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: TColor.primaryColor1.withOpacity(0.2),
+                      blurRadius: 8,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Your Sites",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Poppins',
+                                shadows: [Shadow(color: Colors.black.withOpacity(0.2), blurRadius: 2, offset: Offset(0, 1))],
+                              ),
+                            ).animate().fadeIn(duration: 300.ms),
+                            Row(
+                              children: [
+                                if (userRole == 'manager')
+                                  ElevatedButton.icon(
+                                    onPressed: () {
+                                      showModalBottomSheet(
+                                        context: context,
+                                        isScrollControlled: true,
+                                        backgroundColor: Colors.transparent,
+                                        builder: (context) => Padding(
+                                          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                                          child: AddFarmModal(
+                                            onSave: (name, description, image) {
+                                              _addFarm(name, description, image);
+                                            },
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      foregroundColor: TColor.primaryColor1,
+                                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                    ),
+                                    icon: Icon(Icons.add, size: 20),
+                                    label: Text("Add Site", style: TextStyle(fontFamily: "Inter", fontSize: 14, fontWeight: FontWeight.w600)),
+                                  ).animate().fadeIn(duration: 300.ms, delay: 200.ms),
+                                SizedBox(width: 10),
+                                Stack(
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationView(organizationID: organizationID, userID: userID))).then((_) => fetchUserProfile());
+                                      },
+                                      icon: Icon(Icons.notifications_none_sharp, size: 28, color: Colors.white),
+                                    ),
+                                    if (unreadNotifications > 0)
+                                      Positioned(
+                                        right: 5,
+                                        top: 5,
+                                        child: Container(
+                                          padding: EdgeInsets.all(5),
+                                          decoration: BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                                          constraints: BoxConstraints(minWidth: 8, minHeight: 8),
+                                          child: Center(
+                                            child: Text(
+                                              unreadNotifications.toString(),
+                                              style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 16),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: TextFormField(
+                            cursorColor: TColor.primaryColor1,
+                            onChanged: (value) => setState(() => searchQuery = value),
+                            decoration: InputDecoration(
+                              hintText: 'Search Sites',
+                              hintStyle: TextStyle(fontSize: 14, color: Colors.grey.withOpacity(0.7), fontFamily: "Inter"),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                              prefixIcon: Icon(Icons.search, color: TColor.primaryColor1),
+                            ),
+                          ),
+                        ).animate().fadeIn(duration: 300.ms, delay: 100.ms),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: isLoading
+                  ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(TColor.primaryColor1)))
+                  : errorMessage != null
+                  ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(width: 6),
+                  Icon(Icons.error_outline, color: Colors.red, size: 48),
+                  SizedBox(height: 16),
+                  Text(errorMessage!, style: TextStyle(color: Colors.red, fontFamily: "Inter", fontSize: 16), textAlign: TextAlign.center),
+                  SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: _loadFarms,
+                    style: ElevatedButton.styleFrom(backgroundColor: TColor.primaryColor1, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+                    child: Text("Try Again", style: TextStyle(color: Colors.white, fontFamily: "Inter", fontWeight: FontWeight.w600)),
+                  ),
+                ],
+              ).animate().fadeIn(duration: 300.ms)
+                  : filteredFarms.isEmpty
+                  ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 70,
+                    height: 70,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(colors: TColor.primaryG, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Icon(Icons.location_city, size: 40, color: Colors.white),
+                  ),
+                  SizedBox(height: 16),
                   Text(
-                    "Your Site",
-                    style: TextStyle(
-                      color: TColor.primaryColor1,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                      fontFamily: 'Inter',
-                    ),
+                    searchQuery.isEmpty ? "No Farm Sites Available" : "No Sites Match Your Search",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black87, fontFamily: "Poppins"),
                   ),
-                  const Spacer(),
-                  TextButton.icon(
-                    icon: Icon(
-                      Icons.add,
-                      color: TColor.primaryColor1,
-                      size: 20,
-                    ),
-                    label: Text(
-                      'Add Site',
-                      style: TextStyle(
-                        color: TColor.primaryColor1,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: "Inter",
-                      ),
-                    ),
-                    onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        builder: (context) =>
-                            Padding(
-                              padding: EdgeInsets.only(
-                                bottom: MediaQuery.of(context).viewInsets.bottom,
-                              ),
-                              child: AddFarmModal(
-                                onSave: (name, description, image) {
-                                  _addFarm(name, description, image);
-                                },
-                              ),
-                            ),
-                      );
-                    },
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 14),
-                    ),
+                  SizedBox(height: 8),
+                  Text(
+                    searchQuery.isEmpty
+                        ? userRole == 'manager'
+                        ? "Tap 'Add Site' to create your first farm site"
+                        : "Please contact a manager to add farm sites"
+                        : "Try a different search term",
+                    style: TextStyle(fontSize: 14, color: Colors.black54, fontFamily: "Inter"),
+                    textAlign: TextAlign.center,
                   ),
-                  Stack(
-                    children: [
-                      IconButton(
+                  if (userRole == 'manager' && searchQuery.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 24),
+                      child: ElevatedButton.icon(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const NotificationView(),
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (context) => Padding(
+                              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                              child: AddFarmModal(onSave: (name, description, image) => _addFarm(name, description, image)),
                             ),
                           );
                         },
-                        icon: Icon(
-                          Icons.notifications_none_sharp,
-                          size: 28,
-                          color: TColor.primaryColor1,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: TColor.primaryColor1,
+                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                         ),
+                        icon: Icon(Icons.add, color: Colors.white),
+                        label: Text("Add New Site", style: TextStyle(color: Colors.white, fontFamily: "Inter", fontWeight: FontWeight.w600)),
                       ),
-                      if (unreadNotifications > 0)
-                        Positioned(
-                          right: 5,
-                          top: 5,
-                          child: Container(
-                            padding: EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            constraints: BoxConstraints(
-                              minWidth: 8,
-                              minHeight: 8,
-                            ),
-                            child: Center(
-                              child: Text(
-                                unreadNotifications.toString(),
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
+                    ),
+                ],
+              ).animate().fadeIn(duration: 300.ms)
+                  : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 4,
+                          height: 20,
+                          decoration: BoxDecoration(color: TColor.primaryColor1, borderRadius: BorderRadius.circular(4)),
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          "Farm Sites",
+                          style: TextStyle(
+                            color: TColor.primaryColor1,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins',
                           ),
                         ),
-                    ],
+                      ],
+                    ),
                   ),
+                  ...filteredFarms.map((farm) => GestureDetector(
+                    onLongPress: userRole == 'manager' ? () => _showContextMenu(context, farm) : null,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: Offset(0, 5)),
+                          ],
+                        ),
+                        child: CardHorizontal(
+                          title: farm.title,
+                          description: farm.description,
+                          img: farm.imageUrl.isNotEmpty ? farm.imageUrl : "https://via.placeholder.com/200",
+                          farmId: farm.id,
+                          tap: () {
+                            Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder: (context, animation, secondaryAnimation) => ShelfList(farmId: farm.id!, farmName: farm.title),
+                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                  const begin = Offset(1.0, 0.0); // Start from right
+                                  const end = Offset.zero; // End at center
+                                  const curve = Curves.easeInOut;
+
+                                  var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                                  var offsetAnimation = animation.drive(tween);
+
+                                  return SlideTransition(
+                                    position: offsetAnimation,
+                                    child: child,
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                          timestamp: farm.createdAt ?? DateTime.now(),
+                        ),
+                      ),
+                    ),
+                  ).animate().fadeIn(duration: 300.ms, delay: (filteredFarms.indexOf(farm) * 100).ms)),
                 ],
               ),
-              SizedBox(height: 6),
-              Container(
-                width: MediaQuery.of(context).size.width * .9,
-                decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: TextFormField(
-                  cursorColor: TColor.primaryColor1,
-                  onChanged: (value) {
-                    setState(() {
-                      searchQuery = value;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Enter Site Name',
-                    hintStyle: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.withOpacity(0.70),
-                      fontFamily: "Poppins",
-                    ),
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    contentPadding:
-                    EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
-                    prefixIcon: Icon(
-                      Icons.search,
-                      color: Colors.grey.withOpacity(0.85),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : errorMessage != null
-          ? Center(child: Text(errorMessage!, style: TextStyle(color: Colors.red)))
-          : filteredFarms.isEmpty
-          ? Center(child: Text('No farms found'))
-          : RefreshIndicator(
-        onRefresh: _loadFarms,
-        child: ListView.builder(
-          padding: const EdgeInsets.only(bottom: 10.0),
-          itemCount: filteredFarms.length,
-          itemBuilder: (context, index) {
-            final farm = filteredFarms[index];
-            return GestureDetector(
-              onLongPress: () => _showContextMenu(context, farm),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    vertical: 5.0, horizontal: 20.0),
-                child: CardHorizontal(
-                  title: farm.title,
-                  description: farm.description,
-                  img: farm.imageUrl.isNotEmpty ? farm.imageUrl : "https://via.placeholder.com/200",
-                  farmId: farm.id,
-                  tap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ShelfList(farmId: farm.id!),
-                      ),
-                    );
-                  },
-                  timestamp: farm.createdAt ?? DateTime.now(),
-                ),
-              ),
-            );
-          },
-        ),
+        ],
       ),
     );
   }

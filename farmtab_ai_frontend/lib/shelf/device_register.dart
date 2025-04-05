@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import '../nav tab/home_tab_view.dart';
+import '../models/shelf.dart';
+import '../nav tab/shelf_tab_view.dart';
 import '../services/device_service.dart';
 import '../theme/color_extension.dart';
 import '../widget/custome_input_decoration.dart';
 
 class DeviceRegistrationPage extends StatefulWidget {
-  const DeviceRegistrationPage({super.key});
+  final Shelf shelf;
+
+  const DeviceRegistrationPage({Key? key, required this.shelf}) : super(key: key);
 
   @override
   State<DeviceRegistrationPage> createState() => _DeviceRegistrationPageState();
@@ -34,9 +35,10 @@ class _DeviceRegistrationPageState extends State<DeviceRegistrationPage> {
     });
 
     try {
-      final deviceData = await DeviceService.getDeviceBySerial('latest');
+      final deviceData = await DeviceService.getDeviceByShelfId(widget.shelf.id);
       setState(() {
         _currentSerial = deviceData.isNotEmpty ? deviceData['serial_number'] : null;
+        print(_currentSerial);
       });
     } catch (e) {
       setState(() {
@@ -49,7 +51,7 @@ class _DeviceRegistrationPageState extends State<DeviceRegistrationPage> {
     }
   }
 
-  Future<void> _saveSerial() async {
+  Future<void> _saveSerial() async {//
     final serial = _serialController.text.trim();
     if (serial.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -69,7 +71,18 @@ class _DeviceRegistrationPageState extends State<DeviceRegistrationPage> {
     });
 
     try {
-      final success = await DeviceService.registerDevice(serial);
+      bool success;
+      if (_currentSerial == null) {
+        success = await DeviceService.registerDevice(
+          serial: serial,
+          shelfId: widget.shelf.id,
+        );
+      } else {
+        success = await DeviceService.updateDevice(
+          serial: serial,
+          shelfId: widget.shelf.id,
+        );
+      }
 
       if (success) {
         setState(() {
@@ -84,16 +97,27 @@ class _DeviceRegistrationPageState extends State<DeviceRegistrationPage> {
                 children: [
                   Icon(Icons.check_circle, color: Colors.white),
                   SizedBox(width: 10),
-                  Text('Device registered successfully!'),
+                  Text('Device saved successfully!'),
                 ],
               ),
               backgroundColor: Colors.green,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              duration: Duration(seconds: 2),
+            ),
+          );
+
+          // Navigate after a short delay to allow snackbar to show
+          await Future.delayed(Duration(milliseconds: 500));
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ShelfTabView(shelf: widget.shelf),
             ),
           );
         }
       }
+
     } catch (e) {
       setState(() {
         _errorMessage = 'Error: $e';
@@ -102,7 +126,7 @@ class _DeviceRegistrationPageState extends State<DeviceRegistrationPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to register device: $e'),
+            content: Text('Failed to save device: $e'),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -330,7 +354,7 @@ class _DeviceRegistrationPageState extends State<DeviceRegistrationPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Register New Device',
+                          _currentSerial == null ? 'Register Device Serial' : 'Update Device Serial',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -339,7 +363,9 @@ class _DeviceRegistrationPageState extends State<DeviceRegistrationPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Please enter your device serial number',
+                          _currentSerial == null
+                              ? 'Add a serial number for this shelf'
+                              : 'Change the serial number for this shelf',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey.shade600,
@@ -396,9 +422,9 @@ class _DeviceRegistrationPageState extends State<DeviceRegistrationPage> {
                                   ),
                                 ),
                                 const SizedBox(width: 16),
-                                const Text(
-                                  'REGISTERING...',
-                                  style: TextStyle(
+                                Text(
+                                  _currentSerial == null ? 'REGISTERING...' : 'UPDATING...',
+                                  style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: 1.5,
@@ -414,8 +440,8 @@ class _DeviceRegistrationPageState extends State<DeviceRegistrationPage> {
                                   size: 20,
                                 ),
                                 const SizedBox(width: 12),
-                                const Text(
-                                  'REGISTER DEVICE',
+                                Text(
+                                  _currentSerial == null ? 'REGISTER DEVICE' : 'UPDATE DEVICE',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,

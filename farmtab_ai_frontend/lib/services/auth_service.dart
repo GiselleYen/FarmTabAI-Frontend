@@ -13,19 +13,6 @@ class AuthService {
     await prefs.setString('id_token', idToken);
     await prefs.setString('refresh_token', refreshToken);
     await prefs.setString('user_email', email);
-
-    // Debugging: Check if tokens are actually saved
-    String? storedToken = prefs.getString('access_token');
-    String? storedEmail = prefs.getString('user_email');
-    print("✅ Stored Access Token: $storedToken");
-    print("✅ Stored User Email: $storedEmail");
-
-    if (storedToken == null) {
-      print("🚨 Token storage failed!");
-    }
-    if (storedEmail == null) {
-      print("🚨 Email storage failed!");
-    }
   }
 
   Future<bool> isTokenValid() async {
@@ -139,7 +126,6 @@ class AuthService {
       final responseData = jsonDecode(response.body);
 
       if (responseData['success'] && responseData['tokens'] != null) {
-        print("Received Tokens: ${responseData['tokens']}");
         await _storeTokens(
           responseData['tokens']['accessToken'],
           responseData['tokens']['idToken'],

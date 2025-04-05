@@ -13,7 +13,7 @@ class SensorGraphWidget extends StatefulWidget {
   final Color primaryColor;
   final Color secondaryColor;
   final String unit;
-  final Map<String, List<dynamic>> valueCategories; // Format: {'Label': [min, max, color]}
+  final Map<String, List<dynamic>> valueCategories;
 
   const SensorGraphWidget({
     Key? key,
@@ -230,41 +230,44 @@ class _SensorGraphWidgetState extends State<SensorGraphWidget> {
                 ),
                 lineTouchData: LineTouchData(
                   touchTooltipData: LineTouchTooltipData(
-                    //tooltipBgColor: Colors.blueGrey.shade800,
+                    fitInsideHorizontally: true,
+                    fitInsideVertically: true,
                     tooltipRoundedRadius: 8,
-                    getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
-                      return touchedBarSpots.map((barSpot) {
-                        final DateTime pointTime = widget.startTime.add(
-                            Duration(hours: widget.hoursInterval * barSpot.x.toInt())
-                        );
+                      getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
+                        return touchedBarSpots.map((barSpot) {
+                          // Only show tooltips for the main line
+                          if (barSpot.bar.barWidth != 3) return null;
 
-                        final category = getCategoryForValue(barSpot.y);
+                          final DateTime pointTime = widget.startTime.add(
+                            Duration(hours: widget.hoursInterval * barSpot.x.toInt()),
+                          );
+                          final category = getCategoryForValue(barSpot.y);
 
-                        return LineTooltipItem(
-                          '${pointTime.day}/${pointTime.month} ${pointTime.hour}:00\n',
-                          const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          children: [
-                            TextSpan(
-                              text: '${widget.title}: ${barSpot.y.toStringAsFixed(1)}${widget.unit}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          return LineTooltipItem(
+                            '${pointTime.day}/${pointTime.month} ${pointTime.hour}:00\n',
+                            const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
                             ),
-                            TextSpan(
-                              text: ' ($category)',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
-                                fontStyle: FontStyle.italic,
+                            children: [
+                              TextSpan(
+                                text: '${widget.title}: ${barSpot.y.toStringAsFixed(1)}${widget.unit}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                          ],
-                        );
-                      }).toList();
-                    },
+                              TextSpan(
+                                text: ' ($category)',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
+                          );
+                        }).toList();
+                      }
                   ),
                 ),
               ),
@@ -317,6 +320,3 @@ class _SensorGraphWidgetState extends State<SensorGraphWidget> {
     );
   }
 }
-
-// Example for Temperature Graph
-//

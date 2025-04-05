@@ -1,6 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../login_register/welcome_screen.dart';
 import '../../models/organization.dart';
 import '../../models/user.dart';
@@ -10,6 +10,7 @@ import '../services/organization_service.dart';
 import '../services/user_service.dart';
 import 'tabs/organizations_tab.dart';
 import 'tabs/users_tab.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({Key? key}) : super(key: key);
@@ -34,8 +35,6 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
     _tabController = TabController(length: 2, vsync: this);
     _organizationService = OrganizationService();
     _userService = UserService();
-
-    // Fetch data when the page loads
     _fetchData();
   }
 
@@ -142,66 +141,105 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add New Organization'),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        title: Text(
+          'New Organization',
+          style: TextStyle(
+            fontSize: 23,
+            color: TColor.primaryColor1,
+            fontFamily: "Poppins",
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
+              cursorColor: TColor.primaryColor1,
               controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Organization Name',
-                border: OutlineInputBorder(),
-              ),
               autofocus: true,
+              decoration: InputDecoration(
+                labelText: 'Organization Name',
+                labelStyle: TextStyle(color: TColor.primaryColor1),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: TColor.primaryColor1),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(
+                    color: TColor.primaryColor1,
+                    width: 2,
+                  ),
+                ),
+                prefixIcon: Icon(
+                  Icons.business,
+                  color: TColor.primaryColor1,
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: TColor.primaryColor1),
+            style: TextButton.styleFrom(
+              foregroundColor: TColor.primaryColor1,
             ),
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () async {
               if (nameController.text.trim().isNotEmpty) {
                 Navigator.of(context).pop();
-
                 try {
                   final newOrg = Organization(
                     id: '', // ID will be assigned by server
                     name: nameController.text.trim(),
                   );
-
                   final createdOrg = await _organizationService.createOrganization(newOrg);
 
-                  setState(() {
-                    organizations.add(createdOrg);
-                  });
+                  await _fetchData();
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Added organization: ${createdOrg.name}'),
                       backgroundColor: TColor.primaryColor1,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   );
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Failed to add organization: $e'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //   SnackBar(
+                  //     content: Text('Failed to add organization: $e'),
+                  //     backgroundColor: Colors.red,
+                  //     behavior: SnackBarBehavior.floating,
+                  //     shape: RoundedRectangleBorder(
+                  //       borderRadius: BorderRadius.circular(10),
+                  //     ),
+                  //   ),
+                  // );
                 }
               }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: TColor.primaryColor1,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-            child: const Text('Add'),
+            child: const Text('Add',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
           ),
         ],
       ),
@@ -245,6 +283,19 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
           indicatorColor: Colors.white,
         ),
         actions: [
+          if (kIsWeb)
+            TextButton.icon(
+              onPressed: () async {
+                final Uri url = Uri.parse('http://app.farmtab.my:3000/dashboards');
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url, mode: LaunchMode.externalApplication);
+                } else {
+                  throw 'Could not launch $url';
+                }
+              },
+              icon: const Icon(Icons.analytics, color: Colors.white),
+              label: const Text('View Analytics', style: TextStyle(color: Colors.white)),
+            ),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () async {
@@ -260,12 +311,13 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(TColor.primaryColor1),))
           : TabBarView(
         controller: _tabController,
         children: [
           RefreshIndicator(
             onRefresh: _fetchData,
+            color: TColor.primaryColor1,
             child: UsersTab(
               users: users,
               organizations: organizations,
@@ -282,6 +334,8 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
           ),
           RefreshIndicator(
             onRefresh: _fetchData,
+            color: TColor.primaryColor1,
+            backgroundColor: Colors.white,
             child: OrganizationsTab(
               organizations: organizations,
               users: users,
@@ -293,32 +347,12 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
                     name: name,
                   ),
                 );
-
-                setState(() {
-                  organizations[index] = updatedOrg;
-                });
+                await _fetchData();
               },
+              onAddOrganization: _addOrganization,
             ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (_tabController.index == 0) {
-            // Add user functionality
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Add user functionality would go here'),
-                backgroundColor: Colors.green,
-              ),
-            );
-          } else {
-            // Add organization
-            _addOrganization();
-          }
-        },
-        backgroundColor: TColor.primaryColor1,
-        child: const Icon(Icons.add),
       ),
     );
   }

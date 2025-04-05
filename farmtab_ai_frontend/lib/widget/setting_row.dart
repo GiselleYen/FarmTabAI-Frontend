@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 
 class SettingRow extends StatelessWidget {
-  final String icon;
+  final IconData iconData;
   final String title;
   final VoidCallback onPressed;
-  const SettingRow({super.key, required this.icon, required this.title, required this.onPressed });
+
+  const SettingRow({
+    super.key,
+    required this.iconData,
+    required this.title,
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +22,14 @@ class SettingRow extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image.asset(icon,
-                height: 16, width: 16, fit: BoxFit.contain),
+            ShaderMask(
+              shaderCallback: (bounds) => LinearGradient(colors: TColor.primaryG).createShader(bounds),
+              child: Icon(
+                iconData,
+                size: 20,
+                color: Colors.white, // Important for gradient to show properly
+              ),
+            ),
             const SizedBox(
               width: 15,
             ),
@@ -30,8 +42,7 @@ class SettingRow extends StatelessWidget {
                 ),
               ),
             ),
-            Image.asset("assets/images/p_next.png",
-                height: 14, width: 14, fit: BoxFit.contain)
+            Icon(Icons.arrow_forward_ios, size: 14, color: TColor.gray),
           ],
         ),
       ),

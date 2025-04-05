@@ -1,21 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
-
+enum TrendDirection { increase, decrease, equal }
 class SensorDataItem extends StatelessWidget {
   final String label;
   final String value;
   final IconData icon;
-  final bool isIncreasing; // Add parameter for trend direction
+  final TrendDirection trend;
 
   const SensorDataItem({
     required this.label,
     required this.value,
     required this.icon,
-    required this.isIncreasing, // Add to constructor
+    required this.trend,
   });
 
   @override
   Widget build(BuildContext context) {
+    Icon trendIcon;
+    switch (trend) {
+      case TrendDirection.increase:
+        trendIcon = Icon(Icons.arrow_upward, size: 14, color: Colors.green);
+        break;
+      case TrendDirection.decrease:
+        trendIcon = Icon(Icons.arrow_downward, size: 14, color: Colors.red);
+        break;
+      case TrendDirection.equal:
+      default:
+        trendIcon = Icon(Icons.horizontal_rule, size: 14, color: Colors.grey);
+    }
     return Row(
       children: [
         Icon(icon, size: 20, color: TColor.primaryColor1),
@@ -41,11 +53,7 @@ class SensorDataItem extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 2),
-                Icon(
-                  isIncreasing ? Icons.arrow_upward : Icons.arrow_downward,
-                  size: 16,
-                  color: isIncreasing ? Colors.green : Colors.red,
-                ),
+                trendIcon,
               ],
             ),
           ],

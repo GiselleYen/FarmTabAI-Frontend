@@ -5,6 +5,7 @@ import '../../../models/user.dart';
 import '../widgets/filter_bar.dart';
 import '../widgets/stats_widgets.dart';
 import '../widgets/user_card.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class UsersTab extends StatelessWidget {
   final List<User> users;
@@ -28,18 +29,21 @@ class UsersTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        FilterBar(
-          organizations: organizations,
-          selectedFilter: selectedFilter,
-          onFilterChanged: onFilterChanged,
-        ),
-        UserStats(users: users),
-        Expanded(
-          child: _buildUsersList(),
-        ),
-      ],
+    return Container(
+      color: Colors.white,
+      child: Column(
+        children: [
+          FilterBar(
+            organizations: organizations,
+            selectedFilter: selectedFilter,
+            onFilterChanged: onFilterChanged,
+          ),
+          UserStats(users: users),
+          Expanded(
+            child: _buildUsersList(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -72,11 +76,18 @@ class UsersTab extends StatelessWidget {
       itemCount: filteredUsers.length,
       itemBuilder: (context, index) {
         final user = filteredUsers[index];
-        return UserCard(
-          user: user,
-          organizations: organizations,
-          onAssignOrganization: onAssignOrganization,
-          onToggleRole: onToggleRole,
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12.0),
+          child: UserCard(
+            user: user,
+            organizations: organizations,
+            onAssignOrganization: onAssignOrganization,
+            onToggleRole: onToggleRole,
+          ).animate().fadeIn(duration: 300.ms).slideX(
+            begin: 0.1,
+            duration: 300.ms,
+            curve: Curves.easeOut,
+          ),
         );
       },
     );

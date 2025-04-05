@@ -46,7 +46,15 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    _loadOrCreateSessionId();
+    // _loadOrCreateSessionId();
+    _generateNewSessionId();
+  }
+
+  void _generateNewSessionId() {
+    final newSessionId = const Uuid().v4();
+    setState(() {
+      sessionId = newSessionId;
+    });
   }
 
   Future<void> _loadOrCreateSessionId() async {
@@ -95,7 +103,7 @@ class _ChatPageState extends State<ChatPage> {
       const Duration apiTimeout = Duration(seconds: 180);
 
       final response = await http.post(
-        Uri.parse("http://43.217.81.223:3000/generate"),
+        Uri.parse("http://124.243.133.42:3000/generate"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "prompt": userInput,
@@ -181,14 +189,14 @@ class _ChatPageState extends State<ChatPage> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         // Avatar for the assistant while typing
-                        Container(
-                          height: 40,
-                          width: 40,
-                          child: CircleAvatar(
-                            backgroundImage: AssetImage("assets/images/shelfA.jpg"),
-                            radius: 65.0,
-                          ),
-                        ),
+                        // Container(
+                        //   height: 40,
+                        //   width: 40,
+                        //   child: CircleAvatar(
+                        //     backgroundImage: AssetImage("assets/images/shelfA.jpg"),
+                        //     radius: 65.0,
+                        //   ),
+                        // ),
                         SizedBox(width: 8),
                         // Animated typing indicator
                         Container(
@@ -220,16 +228,16 @@ class _ChatPageState extends State<ChatPage> {
                         ? MainAxisAlignment.end
                         : MainAxisAlignment.start,
                     children: [
-                      if (!message.isUser)
-                        Container(
-                          height: 40,
-                          width: 40,
-                          child: CircleAvatar(
-                            backgroundImage:
-                            AssetImage("assets/images/shelfA.jpg"),
-                            radius: 65.0,
-                          ),
-                        ),
+                      // if (!message.isUser)
+                      //   Container(
+                      //     height: 40,
+                      //     width: 40,
+                      //     child: CircleAvatar(
+                      //       backgroundImage:
+                      //       AssetImage("assets/images/shelfA.jpg"),
+                      //       radius: 65.0,
+                      //     ),
+                      //   ),
                       SizedBox(width: !message.isUser ? 8 : 0),
                       Flexible(
                         child: Container(
@@ -253,12 +261,10 @@ class _ChatPageState extends State<ChatPage> {
                                 ? CrossAxisAlignment.end
                                 : CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              SelectableText(
                                 message.text,
                                 style: TextStyle(
-                                  color: message.isUser
-                                      ? Colors.white
-                                      : Colors.black87,
+                                  color: message.isUser ? Colors.white : Colors.black87,
                                   fontSize: 16,
                                 ),
                               ),

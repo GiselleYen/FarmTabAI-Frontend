@@ -30,6 +30,7 @@ class UserCard extends StatelessWidget {
     }
 
     return Card(
+      color: Colors.white,
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -143,13 +144,17 @@ class UserCard extends StatelessWidget {
                                 ? Icons.admin_panel_settings_outlined
                                 : Icons.person_outlined,
                             size: 16,
+                            color: Colors.white,
                           ),
-                          label: Text(user.role == 'user' ? 'Make Manager' : 'Make User'),
+                          label: Text(user.role == 'user' ? 'Make Manager' : 'Make User',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),),
                           onPressed: () {
                             onToggleRole(user);
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: TColor.primaryColor1.withOpacity(0.1),
+                            backgroundColor: TColor.primaryColor1,
                             foregroundColor: TColor.primaryColor1,
                             textStyle: const TextStyle(fontSize: 12),
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),

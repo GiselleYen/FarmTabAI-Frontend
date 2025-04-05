@@ -47,9 +47,16 @@ class _CardSmallState extends State<CardSmall> {
             children: [
               // Image
               Positioned.fill(
-                child: Image.asset(
+                child: widget.image.startsWith('http')
+                    ? Image.network(
                   widget.image,
                   fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => _buildPlaceholderImage(),
+                )
+                    : Image.asset(
+                  widget.image,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => _buildPlaceholderImage(),
                 ),
               ),
               // Gradient overlay
@@ -133,4 +140,16 @@ class _CardSmallState extends State<CardSmall> {
       ),
     );
   }
+}
+
+Widget _buildPlaceholderImage() {
+  return Container(
+    color: Colors.grey[200],
+    alignment: Alignment.center,
+    child: Icon(
+      Icons.broken_image,
+      size: 40,
+      color: Colors.grey[600],
+    ),
+  );
 }

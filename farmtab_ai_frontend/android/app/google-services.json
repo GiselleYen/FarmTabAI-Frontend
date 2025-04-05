@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "637322825771",
+    "project_id": "fyp-farmtabai",
+    "storage_bucket": "fyp-farmtabai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:637322825771:android:deec2adb80143041f49a6e",
+        "android_client_info": {
+          "package_name": "com.app.farmtabai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADK9ntI49jM3k5oxVUO6tAFT2U6aMwb28"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:637322825771:android:0a15d01662690085f49a6e",
+        "android_client_info": {
+          "package_name": "com.example.farmtab_ai_frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADK9ntI49jM3k5oxVUO6tAFT2U6aMwb28"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

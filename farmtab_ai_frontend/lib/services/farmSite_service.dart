@@ -10,18 +10,22 @@ class FarmService {
 
   // Get all farms
   Future<List<Farm>> getFarms() async {
-    try {
-      final response = await http.get(Uri.parse('$baseUrl/farms'));
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('access_token');
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        final List<dynamic> farmsJson = data['data'];
-        return farmsJson.map((json) => Farm.fromJson(json)).toList();
-      } else {
-        throw Exception('Failed to load farms: ${response.body}');
-      }
-    } catch (e) {
-      throw Exception('Error getting farms: $e');
+    final response = await http.get(
+      Uri.parse('http://app.farmtab.my:4000/farms'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token', // 👈 IMPORTANT
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonData = json.decode(response.body)['data'];
+      return jsonData.map((json) => Farm.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load farms: ${response.body}');
     }
   }
 
@@ -41,10 +45,19 @@ class FarmService {
     }
   }
 
-  // Create a new farm
   Future<Farm> createFarm(String title, String description, File? imageFile) async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('access_token');
+
+      if (token == null) {
+        throw Exception("No authentication token found");
+      }
+
       var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/farms'));
+
+      // ✅ Add token to headers
+      request.headers['Authorization'] = 'Bearer $token';
 
       // Add text fields
       request.fields['title'] = title;
@@ -125,4 +138,34 @@ class FarmService {
       throw Exception('Error deleting farm: $e');
     }
   }
+
+  // Fetch average daily sensor data for a specific farm
+  Future<Map<String, dynamic>> getAverageDailyConditions(int farmId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('access_token');
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/farms/$farmId/average-daily-conditions'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonBody = json.decode(response.body);
+        if (jsonBody['success'] == true) {
+          return jsonBody['data'] as Map<String, dynamic>;
+        } else {
+          throw Exception('API error: ${jsonBody['message']}');
+        }
+      } else {
+        throw Exception('Failed to fetch average daily data: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching average daily data: $e');
+    }
+  }
+
 }

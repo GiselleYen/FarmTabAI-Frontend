@@ -9,12 +9,14 @@ class OrganizationCard extends StatelessWidget {
   final Organization organization;
   final List<User> orgUsers;
   final Function(String) onUpdateOrganization;
+  final VoidCallback onDelete;
 
   const OrganizationCard({
     Key? key,
     required this.organization,
     required this.orgUsers,
     required this.onUpdateOrganization,
+    required this.onDelete,
   }) : super(key: key);
 
   @override
@@ -22,7 +24,8 @@ class OrganizationCard extends StatelessWidget {
     final managerCount = orgUsers.where((u) => u.role == 'manager').length;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      color: Colors.white,
+      margin: const EdgeInsets.only(bottom: 4),
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -68,6 +71,43 @@ class OrganizationCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () async {
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        backgroundColor: Colors.white,
+                        title: const Text('Confirm Delete'),
+                        content: Text('Are you sure you want to delete "${organization.name}"? This cannot be undone.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx, false),
+                            child: Text('Cancel',
+                            style: TextStyle(
+                              color: TColor.primaryColor1,
+                            ),),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => Navigator.pop(ctx, true),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: TColor.primaryColor1,
+                            ),
+                            child: const Text('Delete',
+                            style: TextStyle(
+                              color: Colors.white
+                            ),),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (confirmed == true) {
+                      onDelete(); // Trigger the delete callback
+                    }
+                  },
+                  color: Colors.red[400],
                 ),
                 IconButton(
                   icon: const Icon(Icons.edit),

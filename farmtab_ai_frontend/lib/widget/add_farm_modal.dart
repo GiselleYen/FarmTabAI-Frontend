@@ -189,7 +189,7 @@ class _AddFarmModalState extends State<AddFarmModal> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         final name = _nameController.text.trim();
                         final description = _descriptionController.text.trim();
 
@@ -200,7 +200,7 @@ class _AddFarmModalState extends State<AddFarmModal> {
                           return;
                         }
 
-                        widget.onSave(name, description, _image);
+                        await widget.onSave(name, description, _image);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: TColor.primaryColor1,

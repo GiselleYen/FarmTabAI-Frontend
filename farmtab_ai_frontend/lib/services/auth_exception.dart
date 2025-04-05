@@ -1,9 +1,9 @@
-// Add this to a new file: lib/exceptions/auth_exceptions.dart
+// lib/services/auth_exception.dart (if not already created)
 class UnauthorizedException implements Exception {
   final String message;
 
   UnauthorizedException(this.message);
 
   @override
-  String toString() => message;
+  String toString() => 'UnauthorizedException: $message';
 }

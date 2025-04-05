@@ -18,16 +18,20 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formSignupKey = GlobalKey<FormState>();
   bool agreePersonalData = true;
+  bool _showPassword = false;
+  bool _showConfirmPassword = false;
 
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -202,11 +206,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       const SizedBox(
                         height: 25.0,
                       ),
-                      // password
+                      // Password field with visibility toggle
                       TextFormField(
                         cursorColor: TColor.primaryColor1.withOpacity(0.7),
                         controller: _passwordController,
-                        obscureText: true,
+                        obscureText: !_showPassword, // Toggle based on state
                         obscuringCharacter: '*',
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -216,7 +220,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         },
                         decoration: InputDecoration(
                           label: Text(
-                              'Password',
+                            'Password',
                             style: TextStyle(
                               color: TColor.primaryColor1.withOpacity(0.7),
                               fontFamily: 'Poppins',
@@ -227,19 +231,96 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             color: TColor.primaryColor1.withOpacity(0.3),
                             fontFamily: 'Poppins',
                           ),
+                          // Add suffix icon for password visibility toggle
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _showPassword ? Icons.visibility : Icons.visibility_off,
+                              color: TColor.primaryColor1.withOpacity(0.7),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _showPassword = !_showPassword;
+                              });
+                            },
+                          ),
                           border: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: TColor.primaryColor1.withOpacity(0.3), // Default border color
+                              color: TColor.primaryColor1.withOpacity(0.3),
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: TColor.primaryColor1.withOpacity(0.3), // Default border color
+                              color: TColor.primaryColor1.withOpacity(0.3),
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          focusedBorder: OutlineInputBorder( // Border when clicking
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: TColor.primaryColor1,
+                              width: 1.5,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 25.0,
+                      ),
+
+// Confirm Password field with visibility toggle
+                      TextFormField(
+                        cursorColor: TColor.primaryColor1.withOpacity(0.7),
+                        controller: _confirmPasswordController,
+                        obscureText: !_showConfirmPassword,
+                        obscuringCharacter: '*',
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please confirm your password';
+                          }
+                          if (value != _passwordController.text) {
+                            return 'Passwords do not match';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          label: Text(
+                            'Confirm Password',
+                            style: TextStyle(
+                              color: TColor.primaryColor1.withOpacity(0.7),
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                          hintText: 'Confirm Password',
+                          hintStyle: TextStyle(
+                            color: TColor.primaryColor1.withOpacity(0.3),
+                            fontFamily: 'Poppins',
+                          ),
+                          // Add suffix icon for password visibility toggle
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _showConfirmPassword ? Icons.visibility : Icons.visibility_off,
+                              color: TColor.primaryColor1.withOpacity(0.7),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _showConfirmPassword = !_showConfirmPassword;
+                              });
+                            },
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: TColor.primaryColor1.withOpacity(0.3),
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: TColor.primaryColor1.withOpacity(0.3),
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          focusedBorder: OutlineInputBorder(
                             borderSide: BorderSide(
                               color: TColor.primaryColor1,
                               width: 1.5,
@@ -416,10 +497,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Logo(Logos.facebook_f),
-                          // Logo(Logos.twitter),
-                          Logo(Logos.google),
-                          // Logo(Logos.apple),
+                          GestureDetector(
+                            onTap: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("Facebook register will be available in the next version."),
+                                  duration: Duration(seconds: 2),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            },
+                            child: Logo(Logos.facebook_f),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("Google register will be available in the next version."),
+                                  duration: Duration(seconds: 2),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            },
+                            child: Logo(Logos.google),
+                          ),
                         ],
                       ),
                       const SizedBox(

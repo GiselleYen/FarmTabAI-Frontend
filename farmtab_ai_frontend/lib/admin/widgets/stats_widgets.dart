@@ -27,7 +27,7 @@ class UserStats extends StatelessWidget {
             'Total Users',
             totalUsers.toString(),
             Icons.people,
-            Colors.blue,
+            Colors.deepOrange,
           ),
           _buildStatCard(
             context,
@@ -41,7 +41,7 @@ class UserStats extends StatelessWidget {
             'Managers',
             managerUsers.toString(),
             Icons.admin_panel_settings,
-            TColor.primaryColor1,
+            Colors.blue,
           ),
         ],
       ),
@@ -50,6 +50,7 @@ class UserStats extends StatelessWidget {
 
   Widget _buildStatCard(BuildContext context, String title, String count, IconData icon, Color color) {
     return Card(
+      color: TColor.lightGray,
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),

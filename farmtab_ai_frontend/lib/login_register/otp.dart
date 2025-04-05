@@ -3,16 +3,13 @@ import 'dart:async';
 import 'package:farmtab_ai_frontend/login_register/signin_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import '../nav tab/home_tab_view.dart';
 import '../providers/auth_provider.dart';
 import '../widget/custom_welcome_scaffold.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
-
 import '../widget/custome_input_decoration.dart';
 
 class OTP_Page extends StatefulWidget {
-  final String email; // Add email parameter
+  final String email;
   const OTP_Page({super.key, required this.email});
 
   @override
@@ -93,9 +90,15 @@ class _OTP_PageState extends State<OTP_Page> {
             .confirmRegistration(widget.email, _otpController.text.trim());
 
         if (success) {
-          // Navigate to home or sign in page
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('OTP Verified Successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          await Future.delayed(const Duration(seconds: 1));
           Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => const HomeTabView())
+              MaterialPageRoute(builder: (context) => const SignInScreen())
           );
         } else if (authProvider.error != null) {
           ScaffoldMessenger.of(context).showSnackBar(

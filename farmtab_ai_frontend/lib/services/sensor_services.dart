@@ -5,13 +5,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SensorService {
   static const String baseUrl = 'http://app.farmtab.my:4000/api';
 
-  /// Fetch the latest sensor data (pH, EC)
-  Future<Map<String, dynamic>> fetchLatestSensorData() async {
+  Future<Map<String, dynamic>> fetchLatestSensorData(int shelfId) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('access_token');
 
     final response = await http.get(
-      Uri.parse('$baseUrl/sensors/readings'),
+      Uri.parse('$baseUrl/sensors/readings/$shelfId'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -20,44 +19,38 @@ class SensorService {
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      return data['data'];
+      return data;
     } else {
-      throw Exception('Failed to load sensor data');
+      throw Exception('Failed to load sensor data: ${response.statusCode}');
     }
   }
 
-  /// Send calibration value for either pH or EC sensor
-  Future<bool> sendCalibrationData({
-    required String sensorType,
-    required double value,
+  // ✅ Get historical sensor data
+  Future<Map<String, dynamic>> fetchHistoricalSensorData({
+    required int shelfId,
+    int hours = 48,
+    String interval = '1h',
   }) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('access_token');
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('access_token');
 
-      final url = Uri.parse('$baseUrl/calibrate');
-      final body = jsonEncode({
-        'sensorType': sensorType, // ✅ camelCase
-        'calibratedValue': value, // ✅ camelCase
-        'timestamp': DateTime.now().toIso8601String(),
-      });
+    final uri = Uri.parse(
+      '$baseUrl/sensors/readings/historical/$shelfId?hours=$hours&interval=$interval',
+    );
 
-      final response = await http.post(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: body,
-      );
+    final response = await http.get(
+      uri,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-      if (response.statusCode == 200) {
-        return true;
-      } else {
-        throw Exception('Server responded with status code ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Calibration request failed: $e');
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data;
+    } else {
+      throw Exception('Failed to load historical sensor data: ${response.statusCode}');
     }
   }
 }

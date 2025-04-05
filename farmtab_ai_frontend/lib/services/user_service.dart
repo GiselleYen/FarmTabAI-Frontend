@@ -7,7 +7,8 @@ import 'package:path/path.dart';
 import 'package:async/async.dart';
 import 'package:http_parser/http_parser.dart';
 
-import '../models/user.dart'; // Add this import
+import '../models/user.dart';
+import 'auth_exception.dart'; // Add this import
 
 class UserService {
   static const String baseUrl = 'http://app.farmtab.my:4000';
@@ -18,7 +19,7 @@ class UserService {
       final token = prefs.getString('access_token');
 
       if (token == null) {
-        throw Exception("No authentication token found");
+        throw UnauthorizedException("No authentication token found");
       }
 
       final response = await http.get(
@@ -32,6 +33,9 @@ class UserService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return data['user'];
+      } else if (response.statusCode == 401) {
+        // Token is expired or invalid
+        throw UnauthorizedException('Session expired');
       } else {
         throw Exception('Failed to load profile: ${response.statusCode}');
       }
@@ -133,11 +137,6 @@ class UserService {
         default:
           throw Exception('Unsupported image format. Please use JPG, PNG, or GIF');
       }
-
-      // Print debug info
-      print('File path: ${imageFile.path}');
-      print('File extension: $fileExtension');
-      print('MIME type: $mimeType');
 
       // Create multipart request
       var uri = Uri.parse('$baseUrl/user/profile/image');
@@ -243,4 +242,27 @@ class UserService {
       throw Exception('Failed to connect to server: $e');
     }
   }
+
+  Future<int> getUnreadNotificationCount(int userId, int organizationID) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/api/alerts/unread-count/$userId/org/$organizationID'),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['unreadCount'] ?? 0;
+    } else {
+      print('❌ Failed to fetch unread count: ${response.body}');
+      return 0;
+    }
+  }
+
+  Future<int> getUserId() async {
+    final user = await getUserProfile();
+    final id = user['user_id'];
+    if (id is int) return id;
+    if (id is String) return int.tryParse(id) ?? -1;
+    throw Exception("Invalid user ID format");
+  }
+
 }

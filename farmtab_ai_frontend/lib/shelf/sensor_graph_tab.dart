@@ -3,13 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:farmtab_ai_frontend/theme/color_extension.dart';
 
+import '../services/sensor_services.dart';
+
 class SensorGraphsTab extends StatefulWidget {
+  final int shelfId;
+  final bool currentSetting;
+
+  const SensorGraphsTab({Key? key, required this.shelfId, required this.currentSetting}) : super(key: key);
+
   @override
   _SensorGraphsTabState createState() => _SensorGraphsTabState();
 }
 
+
 class _SensorGraphsTabState extends State<SensorGraphsTab> with SingleTickerProviderStateMixin {
   late TabController _graphTabController;
+  bool _isLoading = true;
+  Map<String, List<FlSpot>> sensorSpots = {};
+  DateTime? _startTime;
 
   // Sample data - replace with your actual historical data
   final List<FlSpot> phData = [
@@ -45,7 +56,47 @@ class _SensorGraphsTabState extends State<SensorGraphsTab> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    _graphTabController = TabController(length: 3, vsync: this);
+    _graphTabController = TabController(length: 4, vsync: this);
+    _fetchHistoricalData();
+  }
+
+  Future<void> _fetchHistoricalData() async {
+    try {
+      final service = SensorService();
+      final data = await service.fetchHistoricalSensorData(
+        shelfId: widget.shelfId,
+        hours: 48,
+        interval: '6h',
+      );
+
+      final List<dynamic> rawData = data['data'];
+      if (rawData.isEmpty) return;
+
+      DateTime firstTime = DateTime.parse(rawData.first['timestamp']);
+
+      List<FlSpot> generateSpots(String key) {
+        return rawData.asMap().entries.map((entry) {
+          final index = entry.key.toDouble();
+          final value = entry.value[key];
+          if (value == null) return null;
+          return FlSpot(index, value.toDouble());
+        }).whereType<FlSpot>().toList();
+      }
+
+      setState(() {
+        _startTime = firstTime;
+        sensorSpots['ph'] = generateSpots('ph');
+        sensorSpots['ec'] = generateSpots('ec');
+        sensorSpots['temp'] = generateSpots('temp');
+        sensorSpots['orp'] = generateSpots('orp');
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching historical data: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -162,12 +213,38 @@ class _SensorGraphsTabState extends State<SensorGraphsTab> with SingleTickerProv
   Widget build(BuildContext context) {
     return Column(
       children: [
+        if (widget.currentSetting)
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.red.shade100,
+
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.info_outline, color: Colors.red.shade800),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    "You haven't set the optimal range yet. Please set and save your settings.",
+                    style: TextStyle(
+                      color: Colors.red.shade800,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ),
         TabBar(
           controller: _graphTabController,
           tabs: [
             Tab(text: 'pH'),
             Tab(text: 'EC'),
-            Tab(text: 'TDS'),
+            Tab(text: 'Temp'),
+            Tab(text: 'ORP'),
           ],
           labelColor: TColor.primaryColor1,
           unselectedLabelColor: Colors.grey,
@@ -180,12 +257,14 @@ class _SensorGraphsTabState extends State<SensorGraphsTab> with SingleTickerProv
           ),
         ),
         Expanded(
-          child: TabBarView(
+          child: _isLoading || _startTime == null
+              ? Center(child: CircularProgressIndicator())
+              : TabBarView(
             controller: _graphTabController,
             children: [
               SensorGraphWidget(
-                values: [6.8, 7.1, 7.2, 6.9, 6.7, 7.0, 7.3, 7.4],
-                startTime: DateTime.now().subtract(Duration(hours: 6 * 7)),
+                values: sensorSpots['ph']?.map((e) => e.y).toList() ?? [],
+                startTime: _startTime!,
                 hoursInterval: 6,
                 title: 'pH Levels',
                 minY: 0,
@@ -202,28 +281,58 @@ class _SensorGraphsTabState extends State<SensorGraphsTab> with SingleTickerProv
                 },
               ),
               SensorGraphWidget(
-                values: [1.2, 1.5, 1.8, 2.1, 2.3, 2.0, 1.9, 1.7],
-                startTime: DateTime.now().subtract(Duration(hours: 6 * 7)),
+                values: sensorSpots['ec']?.map((e) => e.y).toList() ?? [],
+                startTime: _startTime!,
                 hoursInterval: 6,
                 title: 'EC Value',
-                minY: 0,
-                maxY: 5,
-                referenceLineValue: 2.0,
+                minY: 10,
+                maxY: 200,
+                referenceLineValue: 30.0,
                 referenceLineLabel: 'Optimal',
                 primaryColor: Colors.green,
                 secondaryColor: Colors.amber,
                 unit: ' mS/cm',
                 valueCategories: {
-                  'Low': [0.0, 1.4, Colors.purple],
-                  'Ideal': [1.5, 2.5, Colors.green],
-                  'High': [2.6, 5.0, Colors.orange],
+                  'Low': [0.0, 50.0, Colors.purple],
+                  'Ideal': [51.0, 100.0, Colors.green],
+                  'High': [101.0, 150.0, Colors.orange],
                 },
               ),
-              _buildLineChart(
-                tdsData,
-                'TDS Graph',
-                'TDS (ppm)',
-                TColor.primaryColor2,
+              SensorGraphWidget(
+                values: sensorSpots['temp']?.map((e) => e.y).toList() ?? [],
+                startTime: _startTime!,
+                hoursInterval: 6,
+                title: 'Temperature',
+                minY: 10,
+                maxY: 40,
+                referenceLineValue: 26.0,
+                referenceLineLabel: 'Optimal',
+                primaryColor: Colors.orange,
+                secondaryColor: Colors.deepOrange,
+                unit: '°C',
+                valueCategories: {
+                  'Cold': [10.0, 20.0, Colors.blue],
+                  'Normal': [20.1, 28.0, Colors.green],
+                  'Hot': [28.1, 40.0, Colors.red],
+                },
+              ),
+              SensorGraphWidget(
+                values: sensorSpots['orp']?.map((e) => e.y).toList() ?? [],
+                startTime: _startTime!,
+                hoursInterval: 6,
+                title: 'ORP Levels',
+                minY: 0,
+                maxY: 100,
+                referenceLineValue: 300,
+                referenceLineLabel: 'Ideal',
+                primaryColor: Colors.indigo,
+                secondaryColor: Colors.blueAccent,
+                unit: ' mV',
+                valueCategories: {
+                  'Low': [0.0, 30.0, Colors.orange],
+                  'Ideal': [31.0, 65.0, Colors.green],
+                  'High': [66.0, 100.0, Colors.red],
+                },
               ),
             ],
           ),

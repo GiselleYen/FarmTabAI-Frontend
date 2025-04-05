@@ -7,13 +7,20 @@ class ShelfDialogData {
   final String title;
   final String subtitle;
   final String imagePath;
+  final String plantType;
+  final int harvestDays;
+  final String deviceSerialNumber;
 
   ShelfDialogData({
     required this.title,
     required this.subtitle,
     required this.imagePath,
+    required this.plantType,
+    required this.harvestDays,
+    this.deviceSerialNumber = '',
   });
 }
+
 
 class AddEditShelfDialog extends StatefulWidget {
   final String dialogTitle;
@@ -33,13 +40,18 @@ class _AddEditShelfDialogState extends State<AddEditShelfDialog> {
   late String shelfName;
   late String shelfSubtitle;
   String? selectedImagePath;
+  late String plantType;
+  late int harvestDays;
 
+  @override
   @override
   void initState() {
     super.initState();
     shelfName = widget.initialData?.title ?? "";
     shelfSubtitle = widget.initialData?.subtitle ?? "";
     selectedImagePath = widget.initialData?.imagePath;
+    plantType = widget.initialData?.plantType ?? "";
+    harvestDays = widget.initialData?.harvestDays ?? 0;
   }
 
   Future<void> _pickImage() async {
@@ -72,7 +84,9 @@ class _AddEditShelfDialogState extends State<AddEditShelfDialog> {
     if (selectedImagePath != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(8),
-        child: selectedImagePath!.startsWith('assets/')
+        child: selectedImagePath!.startsWith('http')
+            ? Image.network(selectedImagePath!, fit: BoxFit.cover)
+            : selectedImagePath!.startsWith('assets/')
             ? Image.asset(selectedImagePath!, fit: BoxFit.cover)
             : Image.file(File(selectedImagePath!), fit: BoxFit.cover),
       );
@@ -133,6 +147,85 @@ class _AddEditShelfDialogState extends State<AddEditShelfDialog> {
 
   @override
   Widget build(BuildContext context) {
+    Widget _buildHarvestDaysStepper() {
+      final TextEditingController _harvestDaysController =
+      TextEditingController(text: '$harvestDays');
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Harvest Days',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Poppins',
+              fontSize: 16,
+              color: TColor.primaryColor1,
+            ),
+          ),
+          SizedBox(height: 8),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: TColor.primaryColor1.withOpacity(0.4)),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            child: Row(
+              children: [
+                // Decrease button
+                IconButton(
+                  icon: Icon(Icons.arrow_drop_down, color: TColor.primaryColor1),
+                  onPressed: () {
+                    setState(() {
+                      if (harvestDays > 0) {
+                        harvestDays--;
+                        _harvestDaysController.text = '$harvestDays';
+                      }
+                    });
+                  },
+                ),
+
+                // Input field
+                Expanded(
+                  child: TextField(
+                    controller: _harvestDaysController,
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                      isDense: true,
+                    ),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                      color: TColor.primaryColor1,
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        harvestDays = int.tryParse(value) ?? harvestDays;
+                      });
+                    },
+                  ),
+                ),
+
+                // Increase button
+                IconButton(
+                  icon: Icon(Icons.arrow_drop_up, color: TColor.primaryColor1),
+                  onPressed: () {
+                    setState(() {
+                      harvestDays++;
+                      _harvestDaysController.text = '$harvestDays';
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
     return AlertDialog(
       backgroundColor: Colors.white,
       title: Text(
@@ -171,6 +264,15 @@ class _AddEditShelfDialogState extends State<AddEditShelfDialog> {
               onChanged: (value) => shelfSubtitle = value,
               decoration: _buildInputDecoration('Subtitle'),
             ),
+            SizedBox(height: 16),
+            TextFormField(
+              initialValue: plantType,
+              cursorColor: TColor.primaryColor1.withOpacity(0.7),
+              onChanged: (value) => plantType = value,
+              decoration: _buildInputDecoration('Plant Type'),
+            ),
+            SizedBox(height: 16),
+            _buildHarvestDaysStepper(),
           ],
         ),
       ),
@@ -195,6 +297,8 @@ class _AddEditShelfDialogState extends State<AddEditShelfDialog> {
                   title: shelfName,
                   subtitle: shelfSubtitle.isEmpty ? "-" : shelfSubtitle,
                   imagePath: selectedImagePath ?? "assets/images/placeholder.jpg",
+                  plantType: plantType,
+                  harvestDays: harvestDays,
                 ),
               );
             }
@@ -219,3 +323,5 @@ class _AddEditShelfDialogState extends State<AddEditShelfDialog> {
     );
   }
 }
+
+
